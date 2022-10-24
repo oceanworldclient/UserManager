@@ -1,7 +1,8 @@
 ﻿@page "/Register"
+@using UserManager.Blazor.Services
 @layout EmptyLayout
 @inject NavigationManager NavigationManager
-@inject ManageClient ManageClient;
+@inject IAuthService AuthService
 
 <MCard Width="510" Height="680" Class="mx-auto my-auto" Style="height: calc(100% - 96px);">
     <div class="mt-2 mx-auto text-center" style="width: 420px;">
@@ -14,27 +15,18 @@
         <MTextField TValue="string"
                     Class="mt-10"
                     Label="Password"
-                    Type="@(_show ? "text":"password")"
+                    Type="@(_show ? "text" : "password")"
                     Placeholder="Password"
-                    AppendIcon="@(_show?"mdi-eye" : "mdi-eye-off")"
-                    OnAppendClick="()=>_show = !_show"
+                    AppendIcon="@(_show ? "mdi-eye" : "mdi-eye-off")"
+                    OnAppendClick="() => _show = !_show"
                     Outlined="true"
                     HideDetails="@("auto")"/>
-        
-        <MButton Class="mt-11 rounded-4 text-btn white--text" OnClick="RegisterAction" Height=46 Width=340 Color="primary" Disabled="@(!_isRegistering)">
-            @if (!_isRegistering)
-            {
-                <text>注册</text>
-            }
-            else
-            {
-                <MProgressCircular Size="30" Indeterminate Color="primary"></MProgressCircular>
-            }
 
-        </MButton>
-                                                        
+        <MButton Class="mt-11 rounded-4 text-btn white--text" OnClick="RegisterAction" Height=46 Width=340 Color="primary" Disabled="_isLoading" Loading="_isLoading">注册</MButton>
     </div>
 </MCard>
+<Snackbar @ref="_snackbar"/>
+
 
 
 @code {
@@ -43,22 +35,25 @@
 
     private bool _show;
 
-    private bool _isRegistering = false;
-    
+    private bool _isLoading = false;
+
+    private Snackbar? _snackbar;
+
 
     private async void RegisterAction()
     {
-        _isRegistering = true;
-        var registerResult = await ManageClient.Register(_registerModel);
-        if (registerResult.Successful)
+        _isLoading = true;
+        var result = await AuthService.Register(_registerModel);
+        if (result.Successful)
         {
             NavigationManager.NavigateTo("/Login");
         }
         else
         {
-            
+            _snackbar?.Show(string.Join(",", result.Errors));
+            _isLoading = false;
+            StateHasChanged();
         }
-        _isRegistering = false;
     }
 
 }

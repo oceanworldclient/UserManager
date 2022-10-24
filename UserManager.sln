@@ -5,7 +5,7 @@ VisualStudioVersion = 25.0.1700.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManager.Server", "UserManager.Server\UserManager.Server.csproj", "{9030A550-98DB-4B86-A579-A247517680A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManager.Client", "UserManager.Client\UserManager.Client.csproj", "{D630E0AC-9114-4694-98DA-CA1758285DA2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManager.WebClient", "UserManager.WebClient\UserManager.WebClient.csproj", "{D630E0AC-9114-4694-98DA-CA1758285DA2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManager.Shared", "UserManager.Shared\UserManager.Shared.csproj", "{BA7EC51D-24CC-47F0-828A-4C0A2566D230}"
 EndProject

@@ -1,4 +1,4 @@
-namespace UserManager.Shared;
+namespace UserManager.Shared.Response;
 
 public class LoginResult
 {

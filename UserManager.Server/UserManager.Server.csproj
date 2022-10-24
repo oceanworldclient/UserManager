@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UserManager.Client\UserManager.Client.csproj" />
+    <ProjectReference Include="..\UserManager.WebClient\UserManager.WebClient.csproj" />
     <ProjectReference Include="..\UserManager.Shared\UserManager.Shared.csproj" />
   </ItemGroup>
 

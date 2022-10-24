@@ -3,6 +3,7 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using UserManager.Shared;
 using UserManager.Shared.Request;
+using UserManager.Shared.Response;
 
 namespace UserManager.Blazor.Services;
 
