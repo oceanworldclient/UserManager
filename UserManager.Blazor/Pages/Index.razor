@@ -3,9 +3,41 @@
 <MCard Rounded="true" MaxWidth="100">
     <MCardTitle>用户查找</MCardTitle>
     <div class="d-flex flex-column justify-content-between">
-        
+        <MTextField TValue="string" 
+                    @bind-Value="_queryString"
+                    Solo
+                    Outlined="true" 
+                    Dense="true"/>
+        <MSelect @bind-Value="_queryType" 
+                 TValue="QueryUserDto.QueryType" 
+                 Solo
+                 Items="_selectItems" 
+                 TItem="SelectItem">
+            
+        </MSelect>
+        <MButton Rounded="true" Loading="_loading" Disabled="_loading"></MButton>
     </div>
 </MCard>
 @code {
-    
+
+    private string _queryString = "";
+
+    private bool _loading = false;
+
+    private QueryUserDto.QueryType _queryType = QueryUserDto.QueryType.Email;
+
+    private IList<SelectItem> _selectItems = new List<SelectItem>()
+    {
+        new() {Label = "邮箱", Value = QueryUserDto.QueryType.Email},
+        new() {Label = "联系方式", Value = QueryUserDto.QueryType.Contact},
+        new() {Label = "用户名", Value = QueryUserDto.QueryType.Username}
+    };
+
+    public class SelectItem
+    {
+        public string Label { get; set; } = "";
+
+        public QueryUserDto.QueryType Value { get; set; } = QueryUserDto.QueryType.Email;
+    }
+
 }

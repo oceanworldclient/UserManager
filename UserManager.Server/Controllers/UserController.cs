@@ -30,6 +30,8 @@ public class UserController : ControllerBase
                 return Ok(await UserService.GetByEmail(queryUserDto.Email, queryUserDto.Website));
             case QueryUserDto.QueryType.Contact:
                 return Ok(await UserService.GetByContact(queryUserDto.Contact, queryUserDto.Website));
+            case QueryUserDto.QueryType.Username:
+                return Ok(await UserService.GetByUserName(queryUserDto.UserName, queryUserDto.Website));
             default:
                 return Ok(new List<UserDto>());
         }
