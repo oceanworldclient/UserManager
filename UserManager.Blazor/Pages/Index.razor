@@ -1,36 +1,59 @@
 ﻿@page "/"
+@using BlazorComponent
+@inject ManageClient ManageClient
 
 <MCard Rounded="true" MaxWidth="100">
     <MCardTitle>用户查找</MCardTitle>
     <div class="d-flex flex-column justify-content-between">
-        <MTextField TValue="string" 
+        <MTextField TValue="string"
                     @bind-Value="_queryString"
                     Solo
-                    Outlined="true" 
+                    Outlined="true"
                     Dense="true"/>
-        <MSelect @bind-Value="_queryType" 
-                 TValue="QueryUserDto.QueryType" 
+        <MSelect @bind-Value="_queryType"
+                 TValue="QueryUserDto.QueryType"
                  Solo
-                 Items="_selectItems" 
+                 Items="_selectItems"
                  TItem="SelectItem">
-            
+
         </MSelect>
-        <MButton Rounded="true" Loading="_loading" Disabled="_loading"></MButton>
+        <MButton Rounded="true" Loading="_isLoading" Disabled="_isLoading" OnClick="Search"></MButton>
+    </div>
+    <div>
+        <MDataTable FixedRight
+                    Headers=""
+                    Items="_users"
+                    Width="@("100%")"
+                    ItemKey="r => r.Id.ToString()"
+                    Class="elevation-1">
+            
+        </MDataTable>
     </div>
 </MCard>
+
 @code {
 
     private string _queryString = "";
 
-    private bool _loading = false;
+    private bool _isLoading = false;
 
     private QueryUserDto.QueryType _queryType = QueryUserDto.QueryType.Email;
 
+    private IList<UserDto> _users = new List<UserDto>();
+
+    private List<DataTableHeader<UserDto>> _headers = new()
+    {
+        new DataTableHeader<UserDto>() { Text = "用户名", Align = "start", Sortable = false, Value = nameof(UserDto.UserName) },
+        new DataTableHeader<UserDto>() { Text = "邮箱", Value = nameof(UserDto.Email) },
+        new DataTableHeader<UserDto>() { Text = "联系方式", Value = nameof(UserDto.ImValue) },
+        new DataTableHeader<UserDto>() { Text = "已使用(GB)", Value = nameof(UserDto.UsedInGb) }
+    };
+
     private IList<SelectItem> _selectItems = new List<SelectItem>()
     {
-        new() {Label = "邮箱", Value = QueryUserDto.QueryType.Email},
-        new() {Label = "联系方式", Value = QueryUserDto.QueryType.Contact},
-        new() {Label = "用户名", Value = QueryUserDto.QueryType.Username}
+        new() { Label = "邮箱", Value = QueryUserDto.QueryType.Email },
+        new() { Label = "联系方式", Value = QueryUserDto.QueryType.Contact },
+        new() { Label = "用户名", Value = QueryUserDto.QueryType.Username }
     };
 
     public class SelectItem
@@ -38,6 +61,35 @@
         public string Label { get; set; } = "";
 
         public QueryUserDto.QueryType Value { get; set; } = QueryUserDto.QueryType.Email;
+    }
+
+    private async void Search()
+    {
+        _isLoading = true;
+        QueryUserDto queryUserDto = new()
+        {
+            Type = _queryType
+        };
+        switch (_queryType)
+        {
+            case QueryUserDto.QueryType.Id:
+                queryUserDto.Id = int.Parse(_queryString);
+                break;
+            case QueryUserDto.QueryType.Email:
+                queryUserDto.Email = _queryString;
+                break;
+            case QueryUserDto.QueryType.Contact:
+                queryUserDto.Contact = _queryString;
+                break;
+            case QueryUserDto.QueryType.Username:
+                queryUserDto.UserName = _queryString;
+                break;
+            default:
+                return;
+        }
+        _users = await ManageClient.FindUser(queryUserDto);
+        _isLoading = false;
+        StateHasChanged();
     }
 
 }

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace UserManager.Shared.Converter;
 
-public class DateTimeConverter:JsonConverter<DateTime>
+public class DateTimeConverter : JsonConverter<DateTime>
 {
     public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

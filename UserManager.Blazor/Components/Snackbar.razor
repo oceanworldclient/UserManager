@@ -16,9 +16,9 @@
     [Parameter]
     public int Timeout { get; set; } = 3000;
 
-    public void Show(string messag)
+    public void Show(string message)
     {
-        _message = messag;
+        _message = message;
         _show = true;
         StateHasChanged();
     }
