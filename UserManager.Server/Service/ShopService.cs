@@ -6,7 +6,7 @@ namespace UserManager.Server.Service;
 
 public class ShopService : BaseService<Shop, ShopDto>
 {
-    public ShopService(IMapper mapper, ConfigurationManager configuration) : base(mapper, configuration)
+    public ShopService(IMapper mapper) : base(mapper)
     {
     }
 

@@ -6,8 +6,7 @@ namespace UserManager.Server.Service;
 
 public class UserService : BaseService<User, UserDto>
 {
-    public UserService(IMapper mapper, ConfigurationManager configuration) : base(mapper,
-        configuration)
+    public UserService(IMapper mapper) : base(mapper)
     {
     }
 

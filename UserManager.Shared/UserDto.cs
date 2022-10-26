@@ -1,5 +1,7 @@
 using System.Globalization;
+using System.Text.Json.Serialization;
 using System.Xml;
+using UserManager.Shared.Converter;
 using UserManager.Shared.Utils;
 
 namespace UserManager.Shared;
@@ -12,6 +14,7 @@ public class UserDto
 
     public string Email { get; set; } = null!;
 
+    [JsonConverter(typeof(DateTimeConverter))]
     public DateTime ClassExpire { get; set; }
 
     public int Class { get; set; }
@@ -32,9 +35,14 @@ public class UserDto
 
     public long TransferEnable { get; set; }
 
-    public double TotalInGb => Math.Round(TransferEnable / 1024.0 / 1024.0 / 1024.0, 2);
+    public double TotalInGb
+    {
+        get => Math.Round(TransferEnable / 1024.0 / 1024.0 / 1024.0, 2);
+        set => TransferEnable = (long)value * 1024 * 1024 * 1024;
+    }
 
     public double UsedInGb => Math.Round((U + D) / 1024.0 / 1024 / 1024, 2);
+
 
     public const string EMAIL = "邮箱";
 
@@ -59,7 +67,7 @@ public class UserDto
         {
             EMAIL => Email,
             USERNAME => UserName,
-            CLASS => CLASS,
+            CLASS => Class.ToString(),
             CLASS_EXPIRE => ClassExpire.FormatString(),
             CONTACT => ImValue ?? "",
             NODE_GROUP => NodeGroup.ToString(),

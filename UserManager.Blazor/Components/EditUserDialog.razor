@@ -1,0 +1,68 @@
+﻿@inject ManageClient ManageClient
+
+<MDialog @bing-Value="_open" Scrollable="true" MaxWidth=600>
+    <ChildContent>
+        <MCard>
+            <MCardTitle Class="text-h5">
+                编辑用户信息
+            </MCardTitle>
+            <MDivider/>
+            @* <MList Dense="true"> *@
+            @*     <MListItem> *@
+            @*         <MListItemContent> *@
+            @*             用户等级: *@
+            @*         </MListItemContent> *@
+            @*         <MListItemContent Class="align-end"> *@
+            @*             <MTextField TValue="int" Flat="true" Dense="true" @bind-Value="@_userDto.Class"></MTextField> *@
+            @*         </MListItemContent> *@
+            @*     </MListItem> *@
+            @*     $1$ <MListItem> #1# *@
+            @*     $1$     <MListItemContent> #1# *@
+            @*     $1$         到期时间: #1# *@
+            @*     $1$     </MListItemContent> #1# *@
+            @*     $1$     <MListItemContent Class="align-end"> #1# *@
+            @*     $1$         <MTextField TValue="DateTime" Flat="true" Dense="true" @bind-Value="@_userDto.ClassExpire"></MTextField> #1# *@
+            @*     $1$     </MListItemContent> #1# *@
+            @*     $1$ </MListItem> #1# *@
+            @*     <MListItem> *@
+            @*         <MListItemContent> *@
+            @*             用户总流量: *@
+            @*         </MListItemContent> *@
+            @*         <MListItemContent Class="align-end"> *@
+            @*             <MTextField TValue="double" Flat="true" Dense="true" @bind-Value="@_userDto.TotalInGb"></MTextField> *@
+            @*         </MListItemContent> *@
+            @*     </MListItem> *@
+            @* </MList> *@
+            @* <MSpacer/> *@
+            <MCardActions>
+                <MButton Color="red darken-1" Text="true" OnClick="@(() => _open = false)">Cancel</MButton>
+                <MButton Color="green darken-1" Text="true" OnClick="Confirm">Save</MButton>
+            </MCardActions>
+        </MCard>
+    </ChildContent>
+</MDialog>
+
+@code {
+
+    private bool _open;
+
+    private UserDto _userDto { get; set; }
+
+    private Action<string>? _callback { get; set; }
+
+    public void Show(UserDto userDto, Action<string>? callback = null)
+    {
+        _userDto = userDto;
+        _callback = callback;
+        _open = true;
+        StateHasChanged();
+    }
+
+    private async void Confirm()
+    {
+        var saveUser = await ManageClient.SaveUser(_userDto);
+        _callback?.Invoke(saveUser ? "保存成功" : "保存失败");
+        _open = false;
+    }
+
+}

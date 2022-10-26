@@ -10,7 +10,7 @@ namespace UserManager.Server.Service;
 
 public class BoughtService : BaseService<Bought, BoughtDto>
 {
-    public BoughtService(IMapper mapper, ConfigurationManager configuration) : base(mapper, configuration)
+    public BoughtService(IMapper mapper) : base(mapper)
     {
     }
 

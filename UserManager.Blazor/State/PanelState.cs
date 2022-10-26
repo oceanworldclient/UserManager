@@ -10,7 +10,5 @@ public class PanelState
     public IList<UserDto> Users { get; set; } = new List<UserDto>();
 
     public QueryUserDto.QueryType QueryType = QueryUserDto.QueryType.Email;
-    
-    public UserDto? SelectedUser { get; set; }
 
 }

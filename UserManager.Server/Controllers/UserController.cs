@@ -1,4 +1,5 @@
 ﻿using UserManager.Server.Service;
+using UserManager.Shared.Response;
 
 namespace UserManager.Server.Controllers;
 
@@ -6,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using UserManager.Shared;
 
 [ApiController]
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 public class UserController : ControllerBase
 {
     private UserService UserService { get; }
@@ -38,14 +39,17 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<bool>> UpdateUser([FromBody] UserDto userDto)
+    public async Task<ActionResult<BaseResult>> UpdateUser([FromBody] UserDto userDto)
     {
-        return await UserService.Update(userDto, userDto.Website);
+        var isSuccess = await UserService.Update(userDto, userDto.Website);
+        return Ok(new BaseResult() { IsSuccess = isSuccess });
     }
 
-    public async Task<ActionResult<bool>> ChangePassword([FromBody] ModifyPasswordDto dto)
+    [HttpPost]
+    public async Task<ActionResult<BaseResult>> ModifyPassword([FromBody] ModifyPasswordDto dto)
     {
-        return await UserService.ModifyPassword(dto);
+        var isSuccess = await UserService.ModifyPassword(dto);
+        return Ok(new BaseResult() { IsSuccess = isSuccess });
     }
 
 }

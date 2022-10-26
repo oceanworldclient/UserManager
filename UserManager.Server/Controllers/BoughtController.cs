@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MySqlX.XDevAPI.Common;
 using UserManager.Server.Service;
 using UserManager.Shared;
+using UserManager.Shared.Response;
 
 namespace UserManager.Server.Controllers;
 
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 [ApiController]
 public class BoughtController : ControllerBase
 {
@@ -23,9 +23,10 @@ public class BoughtController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<bool>> Update([FromBody] BoughtDto boughtDto)
+    public async Task<ActionResult<BaseResult>> Update([FromBody] BoughtDto boughtDto)
     {
-        return Ok(await BoughtService.Update(boughtDto, boughtDto.Website));
+         var isSuccess = await BoughtService.Update(boughtDto, boughtDto.Website);
+         return Ok(new BaseResult() { IsSuccess = isSuccess });
     }
 
     public async Task<ActionResult<BaseResult>> BuyShop([FromBody] BoughtShopDto boughtShopDto)

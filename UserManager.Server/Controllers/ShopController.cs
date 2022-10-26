@@ -4,7 +4,7 @@ using UserManager.Shared;
 
 namespace UserManager.Server.Controllers;
 
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 [ApiController]
 public class ShopController : ControllerBase
 {

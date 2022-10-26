@@ -1,0 +1,22 @@
+﻿@page "/UserInfo/{WebId:int?}"
+@using UserManager.Blazor.State
+@inject StateManager StateManager
+
+<UserInfoTable PanelState="_panelState"/>
+
+@code {
+
+    [Parameter] public int? WebId { get; set; }
+
+    private PanelState _panelState;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (WebId != null)
+        {
+            _panelState = StateManager.GetState(WebId.Value);
+        }
+    }
+
+}

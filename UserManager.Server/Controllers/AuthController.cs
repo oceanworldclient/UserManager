@@ -10,7 +10,7 @@ using UserManager.Shared.Response;
 
 namespace UserManager.Server.Controllers;
 
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 [ApiController]
 public class AuthController : ControllerBase
 {

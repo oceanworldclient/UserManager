@@ -25,12 +25,13 @@
                          SoloInverted
                          HideDetails="true"
                          Items="Keys"
+                         TItem="SelectItem"
+                         TItemValue="QueryUserDto.QueryType"
                          ItemValue="r => r.Type"
                          ItemText="r => r.Label"
-                         TValue="QueryUserDto.QueryType"
-                         Value="QueryUserDto.QueryType.Email"/>
+                         TValue="QueryUserDto.QueryType"/>
                 <MSpacer/>
-                <MButton Large Depressed Color="blue" Loading="_isLoading" Disabled="_isLoading" OnClick="Search"></MButton>
+                <MButton Large Depressed Color="blue" Loading="_isLoading" Disabled="_isLoading" OnClick="Search">搜索</MButton>
             </MToolbar>
         </HeaderContent>
         <ChildContent Context="props">
@@ -64,7 +65,7 @@
                             </MList>
                             <MCardActions>
                                 <MButtonGroup Dense>
-                                    <MButton Text Color="primary" OnClick="@(() => ChangePassword(item))">
+                                    <MButton Text Color="primary" OnClick="@(() => ModifyPassword(item))">
                                         更改密码
                                     </MButton>
                                     <MButton Text Color="primary" OnClick="@(() => EditUser(item))">
@@ -80,12 +81,13 @@
     </MDataIterator>
 </MContainer>
 <Snackbar @ref="_snackbar"/>
-<PModal></PModal>
+<EditUserDialog @ref="_dialog"/>
+<ModifyPasswordDialog @ref="_passwordDialog"></ModifyPasswordDialog>
 
 @code {
 
     [Parameter]
-    private PanelState PanelState { get; set; } = new();
+    public PanelState PanelState { get; set; } = new();
 
     private int _itemsPerPage = 8;
 
@@ -95,6 +97,12 @@
 
     private Snackbar? _snackbar;
 
+    private bool _openDialog;
+
+    private EditUserDialog? _dialog;
+
+    private ModifyPasswordDialog? _passwordDialog;
+
     private static IList<SelectItem> Keys => new List<SelectItem>()
     {
         new("邮箱", QueryUserDto.QueryType.Email),
@@ -102,12 +110,21 @@
         new("用户名", QueryUserDto.QueryType.Username)
     };
 
-    private async void ChangePassword(UserDto userDto)
+    private void ModifyPassword(UserDto userDto)
     {
+        userDto.Website = PanelState.Website;
+        _passwordDialog?.Show(userDto, SnackInfo);
     }
 
-    private async void EditUser(UserDto userDto)
+    private void EditUser(UserDto userDto)
     {
+        userDto.Website = PanelState.Website;
+        _dialog?.Show(userDto, SnackInfo);
+    }
+
+    private void SnackInfo(string message)
+    {
+        _snackbar?.Show(message);
     }
 
     private async void Search()

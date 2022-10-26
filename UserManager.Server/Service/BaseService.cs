@@ -12,19 +12,16 @@ public class BaseService<TE, TD> : IService<TE, TD> where TE : class, new() wher
 
     protected IMapper Mapper { get; }
 
-    protected ConfigurationManager Configuration { get; }
-
-    public BaseService(IMapper mapper, ConfigurationManager configuration)
+    public BaseService(IMapper mapper)
     {
         Mapper = mapper;
-        Configuration = configuration;
     }
 
     protected void InitialDbContext(Website website)
     {
         if (DbContext != null) return;
         var option = new DbContextOptionsBuilder<SSPanelDbContext>()
-            .UseMySQL(Configuration.GetConnectionString(website.ToString()))
+            .UseMySQL(ServiceConfig.Instance.GetConnectionString(website.ToString()))
             .Options;
         DbContext = new SSPanelDbContext(option);
     }
@@ -39,7 +36,7 @@ public class BaseService<TE, TD> : IService<TE, TD> where TE : class, new() wher
     public async Task<List<TD>> GetByExpression(Expression<Func<TE, bool>> expression, Website website)
     {
         InitialDbContext(website);
-        var list = await DbContext!.Set<TE>().FindAsync(expression);
+        var list = await DbContext!.Set<TE>().Where(expression).ToListAsync();
         return Mapper.Map<List<TD>>(list);
     }
 
