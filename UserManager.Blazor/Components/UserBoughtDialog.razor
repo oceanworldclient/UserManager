@@ -1,0 +1,99 @@
+﻿@using BlazorComponent
+<MDialog @bind-Value="_open" Scrollable="true" MaxWidth="600">
+    <ChildContent>
+        <MCard>
+            <MCardTitle Class="text-h5">
+                修改用户密码
+            </MCardTitle>
+            <MCardSubtitle>
+                @_userDto.Email
+            </MCardSubtitle>
+            <MDivider/>
+            <MCardText>
+                <MDataTable Items="_boughtDtos"
+                            Class="elevation-1"
+                            Headers="_headers"
+                            TItem="BoughtDto"
+                            ItemKey="r => r.Id.ToString()">
+                    <ItemColContent>
+                        @if (context.Header.Value == "actions")
+                        {
+                            if (context.Item.Renew != 0)
+                            {
+                                <MButton Text OnClick="()=>CloseRenew(context.Item)">关闭续费</MButton>
+                            }
+                            <MButton Text OnClick="()=>Delete(context.Item)">删除</MButton>
+                        }
+                        else
+                        {
+                            @context.Value
+                        }
+                    </ItemColContent>
+
+                </MDataTable>
+            </MCardText>
+        </MCard>
+    </ChildContent>
+</MDialog>
+<MDialog @bind-Value="_deleteDialog" Scrollable="false">
+    <MCard>
+        <MCardTitle>
+            删除套餐
+        </MCardTitle>
+        <MSlider/>
+        <MCardText>
+            确认删除？
+        </MCardText>
+        <MCardActions>
+            <MButton Text="true" Color="green" OnClick="() => _deleteDialog = false">取消</MButton>
+            <MButton Text="true" Color="red" OnClick="">删除</MButton>
+        </MCardActions>
+    </MCard>
+
+</MDialog>
+
+@code {
+
+    private bool _open;
+
+    private bool _deleteDialog;
+
+    private bool _confirmDelete;
+
+    private UserDto _userDto;
+
+    private IList<BoughtDto> _boughtDtos;
+
+    private Action<string, UserDto, bool>? _callback;
+
+    private BoughtDto? _selectedBoughtDto;
+
+    private List<DataTableHeader<BoughtDto>> _headers = new()
+    {
+        new() { Text = "套餐名字", Value = nameof(BoughtDto.ShopName) },
+        new() { Text = "购买时间", Value = nameof(BoughtDto.DatetimeString) },
+        new() { Text = "价钱", Value = nameof(BoughtDto.Price) },
+        new() { Text = "自动续费时间", Value = nameof(BoughtDto.RenewStr) },
+        new (){ Text= "Actions", Value= "actions",Sortable=false,Width="100px",Align="center" }
+    };
+
+    public void Show(UserDto userDto, IList<BoughtDto> boughtDtos ,Action<string, UserDto, bool>? callback = null)
+    {
+        _open = true;
+        _userDto = userDto;
+        _callback = callback;
+        _boughtDtos = boughtDtos;
+        StateHasChanged();
+    }
+
+    public void CloseRenew(BoughtDto boughtDto)
+    {
+        
+    }
+
+    public void Delete(BoughtDto boughtDto)
+    {
+        
+    }
+
+}

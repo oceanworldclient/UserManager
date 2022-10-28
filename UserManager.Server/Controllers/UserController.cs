@@ -20,28 +20,22 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<IList<UserDto>>> FindUser([FromBody] QueryUserDto queryUserDto)
     {
-        switch (queryUserDto.Type)
+        return queryUserDto.Type switch
         {
-            case QueryUserDto.QueryType.Id:
-                IList<UserDto> res = new List<UserDto>();
-                var userDto = await UserService.GetById(queryUserDto.Id, queryUserDto.Website);
-                if (userDto != null) res.Add(userDto);
-                return Ok(res);
-            case QueryUserDto.QueryType.Email:
-                return Ok(await UserService.GetByEmail(queryUserDto.Email, queryUserDto.Website));
-            case QueryUserDto.QueryType.Contact:
-                return Ok(await UserService.GetByContact(queryUserDto.Contact, queryUserDto.Website));
-            case QueryUserDto.QueryType.Username:
-                return Ok(await UserService.GetByUserName(queryUserDto.UserName, queryUserDto.Website));
-            default:
-                return Ok(new List<UserDto>());
-        }
+            QueryUserDto.QueryType.Id => Ok(await UserService.GetById(queryUserDto.Id, queryUserDto.Website)),
+            QueryUserDto.QueryType.Email => Ok(await UserService.GetByEmail(queryUserDto.Email, queryUserDto.Website)),
+            QueryUserDto.QueryType.Contact => Ok(await UserService.GetByContact(queryUserDto.Contact,
+                queryUserDto.Website)),
+            QueryUserDto.QueryType.Username => Ok(await UserService.GetByUserName(queryUserDto.UserName,
+                queryUserDto.Website)),
+            _ => Ok(new List<UserDto>())
+        };
     }
 
     [HttpPost]
     public async Task<ActionResult<BaseResult>> UpdateUser([FromBody] UserDto userDto)
     {
-        var isSuccess = await UserService.Update(userDto, userDto.Website);
+        var isSuccess = await UserService.ModifyUser(userDto);
         return Ok(new BaseResult() { IsSuccess = isSuccess });
     }
 

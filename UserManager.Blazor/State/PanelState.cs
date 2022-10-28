@@ -11,4 +11,6 @@ public class PanelState
 
     public QueryUserDto.QueryType QueryType = QueryUserDto.QueryType.Email;
 
+    public string SearchString { get; set; } = "";
+
 }

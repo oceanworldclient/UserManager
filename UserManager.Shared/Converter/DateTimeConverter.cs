@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Globalization;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace UserManager.Shared.Converter;
@@ -7,7 +8,8 @@ public class DateTimeConverter : JsonConverter<DateTime>
 {
     public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        return DateTime.TryParse(reader.GetString(), out var dateTime) ? dateTime : default(DateTime);
+        var readOnlySpan = reader.GetString();
+        return readOnlySpan == null ? default : DateTime.ParseExact(readOnlySpan, "yyyy-MM-dd HH:mm:ss", DateTimeFormatInfo.CurrentInfo);
     }
 
     public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)

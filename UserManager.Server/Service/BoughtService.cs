@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using UserManager.Blazor.Pages;
 using UserManager.Server.Model;
 using UserManager.Server.Utils;
 using UserManager.Shared;
@@ -10,29 +11,45 @@ namespace UserManager.Server.Service;
 
 public class BoughtService : BaseService<Bought, BoughtDto>
 {
-    public BoughtService(IMapper mapper) : base(mapper)
+    private ShopService ShopService { get; }
+
+    public BoughtService(IMapper mapper, ShopService shopService) : base(mapper)
     {
+        ShopService = shopService;
     }
 
     public async Task<IList<BoughtDto>> GetByUserId(int userId, Website website)
     {
-        return await GetByExpression(it => it.Userid == userId, website);
+        var res = await GetByExpression(it => it.Userid == userId, website);
+        if (!ShopService.AllShopDic.ContainsKey(website)) await ShopService.GetAllShops(website);
+        foreach (var bought in res)
+        {
+            bought.ShopName = ShopService.AllShopDic[website][bought.Shopid].Name;
+        }
+
+        return res;
     }
 
     public async Task<IList<BoughtDto>> GetLastTenByUserId(int userId, Website website)
     {
-        InitialDbContext(website);
-        var list = await DbContext!.Set<Bought>().OrderByDescending(it => it.Datetime).Where(it => it.Userid == userId)
+        var dbSet = InitialDbContext(website);
+        var list = await dbSet.OrderByDescending(it => it.Datetime).Where(it => it.Userid == userId)
             .Take(10).ToListAsync();
-        return Mapper.Map<List<BoughtDto>>(list);
+        var res = Mapper.Map<List<BoughtDto>>(list);
+        foreach (var bought in res)
+        {
+            bought.ShopName = ShopService.AllShopDic[website][bought.Shopid].Name;
+        }
+
+        return res;
     }
 
     public async Task<BaseResult> BuyShop(BoughtShopDto boughtShopDto)
     {
         InitialDbContext(boughtShopDto.Website);
-        var userDbSet = DbContext!.Set<User>(); 
+        var userDbSet = DbContext!.Set<User>();
         var shop = await DbContext!.Set<Shop>().FindAsync(boughtShopDto.ShopId);
-        if (shop == null) return new BaseResult(){Message = "套餐不存在"};
+        if (shop == null) return new BaseResult() { Message = "套餐不存在" };
         var user = await userDbSet.FindAsync(boughtShopDto.UserId);
         if (user == null) return new BaseResult() { Message = "用户不存在" };
         if (user.Money < shop.Price) return new BaseResult() { Message = "余额不足" };
@@ -75,8 +92,5 @@ public class BoughtService : BaseService<Bought, BoughtDto>
         {
             return new BaseResult() { Message = "购买失败" };
         }
-
     }
-    
-
 }

@@ -37,20 +37,30 @@ public class ManageClient
 
     public async Task<IList<UserDto>> FindUser(QueryUserDto userDto)
     {
-        var res = await PostAsJson<List<UserDto>>($"{UserController}/FindUser", userDto, JsonContext.Default.ListUserDto);
+        var res = await PostAsJson<List<UserDto>>($"{UserController}/FindUser", userDto,
+            JsonContext.Default.ListUserDto);
         return res ?? new List<UserDto>();
     }
 
     public async Task<bool> SaveUser(UserDto userDto)
     {
-        var resp = await PostAsJson<BaseResult>($"{UserController}/UpdateUser", userDto, JsonContext.Default.BaseResult);
+        var resp = await PostAsJson<BaseResult>($"{UserController}/UpdateUser", userDto,
+            JsonContext.Default.BaseResult);
         return resp?.IsSuccess ?? false;
     }
 
     public async Task<bool> ModifyPassword(ModifyPasswordDto dto)
     {
-        var resp = await PostAsJson<BaseResult>($"{UserController}/ModifyPassword", dto, JsonContext.Default.BaseResult);
+        var resp = await PostAsJson<BaseResult>($"{UserController}/ModifyPassword", dto,
+            JsonContext.Default.BaseResult);
         return resp?.IsSuccess ?? false;
+    }
+
+    public async Task<IList<BoughtDto>> FindBoughtByUser(int userId)
+    {
+        var resp = await PostAsJson($"{BoughtController}/FindShop", new QueryBoughtDto() { UserId = userId },
+            JsonContext.Default.ListBoughtDto);
+        return resp ?? new List<BoughtDto>();
     }
 
     private async Task<T?> PostAsJson<T>(string uri, object dto, JsonTypeInfo<T> jsonTypeInfo)
@@ -70,7 +80,8 @@ public class ManageClient
 
     public async Task<RegisterResult> Register(RegisterModel registerModel)
     {
-        var res = await PostAsJson<RegisterResult>($"{AuthController}/Register", registerModel, JsonContext.Default.RegisterResult);
+        var res = await PostAsJson<RegisterResult>($"{AuthController}/Register", registerModel,
+            JsonContext.Default.RegisterResult);
         return res ?? new RegisterResult() { Successful = false };
     }
 }

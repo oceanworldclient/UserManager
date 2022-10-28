@@ -17,13 +17,15 @@ public class BaseService<TE, TD> : IService<TE, TD> where TE : class, new() wher
         Mapper = mapper;
     }
 
-    protected void InitialDbContext(Website website)
+    protected DbSet<TE> InitialDbContext(Website website)
     {
-        if (DbContext != null) return;
+        if (DbContext != null) return DbContext.Set<TE>();
         var option = new DbContextOptionsBuilder<SSPanelDbContext>()
             .UseMySQL(ServiceConfig.Instance.GetConnectionString(website.ToString()))
+            .LogTo(Console.WriteLine).EnableSensitiveDataLogging()
             .Options;
         DbContext = new SSPanelDbContext(option);
+        return DbContext.Set<TE>();
     }
 
     public async Task<TD?> GetById(int id, Website website)
@@ -38,6 +40,13 @@ public class BaseService<TE, TD> : IService<TE, TD> where TE : class, new() wher
         InitialDbContext(website);
         var list = await DbContext!.Set<TE>().Where(expression).ToListAsync();
         return Mapper.Map<List<TD>>(list);
+    }
+
+    public async Task<List<TD>> GetByExpression(Expression<Func<TE, bool>> expression,
+        Expression<Func<TE, TD>> selector, Website website)
+    {
+        InitialDbContext(website);
+        return await DbContext!.Set<TE>().Where(expression).Select(selector).ToListAsync();
     }
 
     public async Task<bool> Update(TD t, Website website)
@@ -96,5 +105,11 @@ public class BaseService<TE, TD> : IService<TE, TD> where TE : class, new() wher
         {
             return false;
         }
+    }
+
+    ~BaseService()
+    {
+        Console.WriteLine("--------------------------释放DbContext");
+        DbContext?.Dispose();
     }
 }

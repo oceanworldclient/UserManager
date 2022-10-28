@@ -143,7 +143,7 @@ namespace UserManager.Server.Model
         public int NodeGroup { get; set; }
         
         [Column("group_expire")]
-        public DateTime? GroupExpire { get; set; }
+        public DateTime GroupExpire { get; set; }
         
         [Column("auto_reset_day")]
         public int AutoResetDay { get; set; }

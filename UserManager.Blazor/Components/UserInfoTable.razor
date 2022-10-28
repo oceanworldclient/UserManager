@@ -12,7 +12,7 @@
             <MToolbar Class="mb-1"
                       Color="blue darken-3"
                       Dark>
-                <MTextField @bind-Value="_searchString"
+                <MTextField @bind-Value="PanelState.SearchString"
                             Clearable
                             Flat
                             SoloInverted
@@ -81,8 +81,8 @@
     </MDataIterator>
 </MContainer>
 <Snackbar @ref="_snackbar"/>
-<EditUserDialog @ref="_dialog"/>
 <ModifyPasswordDialog @ref="_passwordDialog"></ModifyPasswordDialog>
+<ModifyUserDialog @ref="_dialog"/>
 
 @code {
 
@@ -91,15 +91,13 @@
 
     private int _itemsPerPage = 8;
 
-    private string _searchString = "";
-
     private bool _isLoading;
 
     private Snackbar? _snackbar;
 
     private bool _openDialog;
 
-    private EditUserDialog? _dialog;
+    private ModifyUserDialog? _dialog;
 
     private ModifyPasswordDialog? _passwordDialog;
 
@@ -122,14 +120,19 @@
         _dialog?.Show(userDto, SnackInfo);
     }
 
-    private void SnackInfo(string message)
+    private async void SnackInfo(string message, UserDto userDto ,bool refresh = false)
     {
         _snackbar?.Show(message);
+        if(refresh)
+        {
+            PanelState.Users = await ManageClient.FindUser(new QueryUserDto() { Id = userDto.Id, Type = QueryUserDto.QueryType.Id });
+            StateHasChanged();
+        }
     }
 
     private async void Search()
     {
-        if (_searchString == "")
+        if (PanelState.SearchString == "")
         {
             _snackbar?.Show("查询信息不能为空");
             return;
@@ -143,16 +146,16 @@
         switch (PanelState.QueryType)
         {
             case QueryUserDto.QueryType.Id:
-                queryUserDto.Id = int.Parse(_searchString);
+                queryUserDto.Id = int.Parse(PanelState.SearchString);
                 break;
             case QueryUserDto.QueryType.Email:
-                queryUserDto.Email = _searchString;
+                queryUserDto.Email = PanelState.SearchString;
                 break;
             case QueryUserDto.QueryType.Contact:
-                queryUserDto.Contact = _searchString;
+                queryUserDto.Contact = PanelState.SearchString;
                 break;
             case QueryUserDto.QueryType.Username:
-                queryUserDto.UserName = _searchString;
+                queryUserDto.UserName = PanelState.SearchString;
                 break;
             default:
                 _isLoading = false;
