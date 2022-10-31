@@ -22,7 +22,7 @@ public class UserController : ControllerBase
     {
         return queryUserDto.Type switch
         {
-            QueryUserDto.QueryType.Id => Ok(await UserService.GetById(queryUserDto.Id, queryUserDto.Website)),
+            //QueryUserDto.QueryType.Id => Ok(await UserService.GetById(queryUserDto.Id, queryUserDto.Website)),
             QueryUserDto.QueryType.Email => Ok(await UserService.GetByEmail(queryUserDto.Email, queryUserDto.Website)),
             QueryUserDto.QueryType.Contact => Ok(await UserService.GetByContact(queryUserDto.Contact,
                 queryUserDto.Website)),

@@ -6,7 +6,7 @@ using UserManager.Shared;
 
 namespace UserManager.Server.Service;
 
-public class BaseService<TE, TD> : IService<TE, TD> where TE : class, new() where TD : class, new()
+public class BaseService<TE, TD> : IDisposable, IService<TE, TD> where TE : class, new() where TD : class, new()
 {
     protected SSPanelDbContext? DbContext { get; private set; }
 
@@ -15,6 +15,11 @@ public class BaseService<TE, TD> : IService<TE, TD> where TE : class, new() wher
     public BaseService(IMapper mapper)
     {
         Mapper = mapper;
+    }
+
+    protected void Finish()
+    {
+        DbContext?.Dispose();
     }
 
     protected DbSet<TE> InitialDbContext(Website website)
@@ -47,6 +52,13 @@ public class BaseService<TE, TD> : IService<TE, TD> where TE : class, new() wher
     {
         InitialDbContext(website);
         return await DbContext!.Set<TE>().Where(expression).Select(selector).ToListAsync();
+    }
+    
+    public async Task<List<TD>> TakeByExpression(Expression<Func<TE, bool>> expression,
+        Expression<Func<TE, TD>> selector, Website website)
+    {
+        InitialDbContext(website);
+        return await DbContext!.Set<TE>().Where(expression).Select(selector).Take(5).ToListAsync();
     }
 
     public async Task<bool> Update(TD t, Website website)
@@ -107,9 +119,10 @@ public class BaseService<TE, TD> : IService<TE, TD> where TE : class, new() wher
         }
     }
 
-    ~BaseService()
+    public void Dispose()
     {
-        Console.WriteLine("--------------------------释放DbContext");
+        Console.WriteLine("释放数据库资源");
+        GC.SuppressFinalize(this);
         DbContext?.Dispose();
     }
 }

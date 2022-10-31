@@ -1,9 +1,11 @@
 ﻿@using BlazorComponent
-<MDialog @bind-Value="_open" Scrollable="true" MaxWidth="600">
+@inject ManageClient ManageClient
+
+<MDialog @bind-Value="_open" Scrollable="true" MaxWidth="800">
     <ChildContent>
         <MCard>
             <MCardTitle Class="text-h5">
-                修改用户密码
+                用户购买记录
             </MCardTitle>
             <MCardSubtitle>
                 @_userDto.Email
@@ -20,9 +22,9 @@
                         {
                             if (context.Item.Renew != 0)
                             {
-                                <MButton Text OnClick="()=>CloseRenew(context.Item)">关闭续费</MButton>
+                                <MButton Text Color="primary" OnClick="() => CloseRenew(context.Item)">关闭续费</MButton>
                             }
-                            <MButton Text OnClick="()=>Delete(context.Item)">删除</MButton>
+                            <MButton Text Color="primary" OnClick="() => OpenDeleteDialog(context.Item)">删除</MButton>
                         }
                         else
                         {
@@ -32,35 +34,61 @@
 
                 </MDataTable>
             </MCardText>
+            <MCardActions>
+                <MSpacer/>
+                <MButton Color="red darken-1" Text="true" OnClick="@(() => _open = false)">Cancel</MButton>
+            </MCardActions>
         </MCard>
     </ChildContent>
 </MDialog>
-<MDialog @bind-Value="_deleteDialog" Scrollable="false">
+
+<MDialog @bind-Value="_confirmDelete" Scrollable="false" MaxWidth="300">
     <MCard>
         <MCardTitle>
             删除套餐
         </MCardTitle>
-        <MSlider/>
+        <MDivider/>
         <MCardText>
             确认删除？
         </MCardText>
         <MCardActions>
-            <MButton Text="true" Color="green" OnClick="() => _deleteDialog = false">取消</MButton>
-            <MButton Text="true" Color="red" OnClick="">删除</MButton>
+            <MSpacer/>
+            <MButton Text="true" Color="green" OnClick="() => _confirmDelete = false">取消</MButton>
+            <MButton Text="true" Color="red" OnClick="ConfirmDelete">删除</MButton>
         </MCardActions>
     </MCard>
-
 </MDialog>
+
+<MDialog @bind-Value="_closeRenew" Scrollable="false" MaxWidth="300">
+    <MCard>
+        <MCardTitle>
+            关闭自动续费
+        </MCardTitle>
+        <MDivider/>
+        <MCardText>
+            确认关闭？
+        </MCardText>
+        <MCardActions>
+            <MSpacer/>
+            <MButton Text="true" Color="green" OnClick="() => _closeRenew = false">取消</MButton>
+            <MButton Text="true" Color="red" OnClick="ConfirmCloseRenew">关闭</MButton>
+        </MCardActions>
+    </MCard>
+</MDialog>
+
+<Snackbar @ref="_snackbar"/>
 
 @code {
 
     private bool _open;
 
-    private bool _deleteDialog;
+    private bool _closeRenew;
 
     private bool _confirmDelete;
 
     private UserDto _userDto;
+
+    private Snackbar? _snackbar;
 
     private IList<BoughtDto> _boughtDtos;
 
@@ -70,14 +98,14 @@
 
     private List<DataTableHeader<BoughtDto>> _headers = new()
     {
-        new() { Text = "套餐名字", Value = nameof(BoughtDto.ShopName) },
-        new() { Text = "购买时间", Value = nameof(BoughtDto.DatetimeString) },
-        new() { Text = "价钱", Value = nameof(BoughtDto.Price) },
-        new() { Text = "自动续费时间", Value = nameof(BoughtDto.RenewStr) },
-        new (){ Text= "Actions", Value= "actions",Sortable=false,Width="100px",Align="center" }
+        new DataTableHeader<BoughtDto>() { Text = "套餐名字", Value = nameof(BoughtDto.ShopName) },
+        new DataTableHeader<BoughtDto>() { Text = "购买时间", Value = nameof(BoughtDto.DatetimeString) },
+        new DataTableHeader<BoughtDto>() { Text = "价钱", Value = nameof(BoughtDto.Price) },
+        new DataTableHeader<BoughtDto>() { Text = "自动续费时间", Value = nameof(BoughtDto.RenewStr) },
+        new DataTableHeader<BoughtDto>() { Text = "Actions", Value = "actions", Sortable = false, Width = "100px", Align = "center" }
     };
 
-    public void Show(UserDto userDto, IList<BoughtDto> boughtDtos ,Action<string, UserDto, bool>? callback = null)
+    public void Show(UserDto userDto, IList<BoughtDto> boughtDtos, Action<string, UserDto, bool>? callback = null)
     {
         _open = true;
         _userDto = userDto;
@@ -86,14 +114,60 @@
         StateHasChanged();
     }
 
-    public void CloseRenew(BoughtDto boughtDto)
+    private void CloseRenew(BoughtDto boughtDto)
     {
-        
+        _selectedBoughtDto = boughtDto;
+        _closeRenew = true;
+        StateHasChanged();
     }
 
-    public void Delete(BoughtDto boughtDto)
+    private async void ConfirmCloseRenew()
     {
-        
+        CloseRenewDto dto = new()
+        {
+            Website = _userDto.Website,
+            Id = _selectedBoughtDto!.Id
+        };
+        var res = await ManageClient.CloseRenew(dto);
+        if (res)
+        {
+            _snackbar?.Show("关闭成功");
+            _boughtDtos = await ManageClient.QueryBoughtByUserId(new QueryBoughtDto() { UserId = _userDto.Id });
+        }
+        else
+        {
+            _snackbar?.Show("关闭失败");
+        }
+        _closeRenew = false;
+        StateHasChanged();
+    }
+
+    private async void ConfirmDelete()
+    {
+        DeleteBoughtDto deleteBoughtDto = new()
+        {
+            Website = _userDto.Website,
+            Id = _selectedBoughtDto!.Id
+        };
+        var res = await ManageClient.DeleteBought(deleteBoughtDto);
+        if (res)
+        {
+            _snackbar?.Show("删除成功");
+            _boughtDtos = await ManageClient.QueryBoughtByUserId(new QueryBoughtDto() { UserId = _userDto.Id });
+        }
+        else
+        {
+            _snackbar?.Show("删除失败");
+        }
+        _confirmDelete = false;
+        StateHasChanged();
+    }
+
+    private void OpenDeleteDialog(BoughtDto boughtDto)
+    {
+        _selectedBoughtDto = boughtDto;
+        _confirmDelete = true;
+        StateHasChanged();
     }
 
 }

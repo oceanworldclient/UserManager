@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using UserManager.Server.Model;
 
 namespace UserManager.Server.EntityFramework;
 
 public class UserDbContext: IdentityDbContext
 {
 
+    public DbSet<OperationLog> OperationLogs { get; set; }
     public UserDbContext(DbContextOptions<UserDbContext> options) : base(options)
     {
         
@@ -42,5 +44,4 @@ public class UserDbContext: IdentityDbContext
             entity.Property(m => m.Name).HasMaxLength(127);
         }); 
     }
-    
 }

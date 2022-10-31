@@ -2,7 +2,7 @@
 @inject ManageClient ManageClient
 
 
-<MContainer Fluid>
+<MContainer>
     <MDataIterator Items="PanelState.Users"
                    ItemsPerPage="_itemsPerPage"
                    TItem="UserDto"
@@ -41,15 +41,14 @@
                     <MCol @key="item.Email"
                           Cols="12"
                           Sm="6"
-                          Md="4"
-                          Lg="3">
+                          Md="6"
+                          Lg="4">
                         <MCard>
                             <MCardTitle Class="subheading font-weight-bold">
                                 @item.Email
                             </MCardTitle>
 
                             <MDivider/>
-
                             <MList Dense>
                                 @foreach (var key in UserDto.Keys)
                                 {
@@ -63,15 +62,25 @@
                                     </MListItem>
                                 }
                             </MList>
-                            <MCardActions>
-                                <MButtonGroup Dense>
+                            <MCardActions Class="d-flex">
+                                @* <MButtonGroup Dense> *@
+                                <MListItemContent>
                                     <MButton Text Color="primary" OnClick="@(() => ModifyPassword(item))">
                                         更改密码
                                     </MButton>
                                     <MButton Text Color="primary" OnClick="@(() => EditUser(item))">
                                         编辑
                                     </MButton>
-                                </MButtonGroup>
+                                </MListItemContent>
+                                <MListItemContent>
+                                    <MButton Text Color="primary" OnClick="@(() => OpenBought(item))">
+                                        购买记录
+                                    </MButton>
+                                    <MButton Text Color="primary" OnClick="@(() => BuyShop(item))">
+                                        套餐
+                                    </MButton>
+                                </MListItemContent>
+                                @* </MButtonGroup> *@
                             </MCardActions>
                         </MCard>
                     </MCol>
@@ -81,8 +90,10 @@
     </MDataIterator>
 </MContainer>
 <Snackbar @ref="_snackbar"/>
-<ModifyPasswordDialog @ref="_passwordDialog"></ModifyPasswordDialog>
+<ModifyPasswordDialog @ref="_passwordDialog"/>
 <ModifyUserDialog @ref="_dialog"/>
+<UserBoughtDialog @ref="_userBoughtDialog"/>
+<BuyShopDialog @ref="_buyShopDialog"/>
 
 @code {
 
@@ -100,6 +111,10 @@
     private ModifyUserDialog? _dialog;
 
     private ModifyPasswordDialog? _passwordDialog;
+
+    private UserBoughtDialog? _userBoughtDialog;
+
+    private BuyShopDialog? _buyShopDialog;
 
     private static IList<SelectItem> Keys => new List<SelectItem>()
     {
@@ -120,10 +135,24 @@
         _dialog?.Show(userDto, SnackInfo);
     }
 
-    private async void SnackInfo(string message, UserDto userDto ,bool refresh = false)
+    private async void OpenBought(UserDto userDto)
+    {
+        userDto.Website = PanelState.Website;
+        var list = await ManageClient.QueryBoughtByUserId(new QueryBoughtDto() { UserId = userDto.Id, Website = userDto.Website });
+        _userBoughtDialog?.Show(userDto, list);
+    }
+
+    private async void BuyShop(UserDto userDto)
+    {
+        userDto.Website = PanelState.Website;
+        var list = await ManageClient.QueryShop(new QueryShopDto() { Website = userDto.Website });
+        _buyShopDialog?.Show(userDto, list, SnackInfo);
+    }
+
+    private async void SnackInfo(string message, UserDto userDto, bool refresh = false)
     {
         _snackbar?.Show(message);
-        if(refresh)
+        if (refresh)
         {
             PanelState.Users = await ManageClient.FindUser(new QueryUserDto() { Id = userDto.Id, Type = QueryUserDto.QueryType.Id });
             StateHasChanged();

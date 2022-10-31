@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UserManager.Server.Service;
 using UserManager.Shared;
+using UserManager.Shared.Request;
 
 namespace UserManager.Server.Controllers;
 
@@ -16,7 +17,7 @@ public class ShopController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<ActionResult<IList<ShopDto>>> FindShop([FromBody] BaseDto baseDto)
+    public async Task<ActionResult<IList<ShopDto>>> QueryShop([FromBody] QueryShopDto baseDto)
     {
         return Ok(await ShopService.GetShopsWithLimit(baseDto.Website));
     }

@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using UserManager.Server;
 using UserManager.Server.EntityFramework;
 using UserManager.Server.Service;
+using UserManager.Server.Utils;
 using UserManager.Shared.Converter;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,12 +47,16 @@ builder.Services.AddResponseCompression(options =>
         new[] {"application/octet-stream"});
 });
 builder.Services.AddRazorPages();
+builder.Services.AddHttpClient();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddPanelService();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 //builder.Services.AddSwaggerGen();
 
 
 var app = builder.Build();
+
+AppHttpContext.Configure(app.Services.GetService<IHttpContextAccessor>());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
