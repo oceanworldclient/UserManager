@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using UserManager.Server.EventHub;
+using UserManager.Server.EventHub.Event;
 using UserManager.Server.Model;
 using UserManager.Server.Utils;
 using UserManager.Shared;
@@ -67,6 +69,8 @@ public class BoughtService : BaseService<Bought, BoughtDto>
 
     public async Task<BaseResult> BuyShop(BuyShopDto buyShopDto)
     {
+        if (!await Verify(buyShopDto.UserEmail, buyShopDto.UserId, buyShopDto.Website))
+            return new BaseResult() {Message = "参数不合法"}; 
         InitialDbContext(buyShopDto.Website);
         try
         {
@@ -115,6 +119,15 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             }
             await DbContext.Set<Bought>().AddAsync(bought);
             await DbContext.SaveChangesAsync();
+            EventCenter.Instance.Publish(new BuyShopEvent()
+            {
+                Website = buyShopDto.Website,
+                Payload = new BuyShopEventPayload()
+                {
+                    Shop = shop,
+                    User = user
+                }
+            });
             return new BaseResult() { IsSuccess = true, Message = "购买成功" };
         }
         catch
@@ -137,6 +150,8 @@ public class BoughtService : BaseService<Bought, BoughtDto>
 
     public async Task<BaseResult> Upgrade(BuyShopDto buyShopDto)
     {
+        if (!await Verify(buyShopDto.UserEmail, buyShopDto.UserId, buyShopDto.Website))
+            return new BaseResult() {Message = "参数不合法"}; 
         InitialDbContext(buyShopDto.Website);
         try
         {
@@ -158,7 +173,7 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             var equalMoney = ((decimal)delta / lastShoContent!.ClassExpire) * lastShop.Price;
 
             var tmpMoney = Math.Round(equalMoney + user.Money, 2);
-            if (tmpMoney < shop.Price)
+            if (tmpMoney < shop.Price - 0.2M)
                 return new BaseResult() { Message = $"还差{Math.Round(shop.Price - tmpMoney, 2)}元" };
 
 
@@ -186,6 +201,16 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             lastBought.Renew = 0L;
             await DbContext.Set<Bought>().AddAsync(bought);
             await DbContext.SaveChangesAsync();
+            EventCenter.Instance.Publish(new UpgradeShopEvent()
+            {
+                Website = buyShopDto.Website,
+                Payload = new UpgradeShopPayload()
+                {
+                    NewShop = shop,
+                    OldShop = lastShop,
+                    User = user
+                }
+            });
             return new BaseResult() { IsSuccess = true, Message = "购买成功" };
         }
         catch
@@ -196,6 +221,34 @@ public class BoughtService : BaseService<Bought, BoughtDto>
         {
             Finish();
         }
+    }
+
+    private async Task<bool> Verify(string email, int userId, Website website)
+    {
+        try
+        {
+            InitialDbContext(website);
+            var userBaseInfo = await DbContext!.Users
+                .Select(it => new UserBaseInfoDto() {Id = it.Id, Email = it.Email, Website = website})
+                .Where(it => it.Id == userId).FirstAsync();
+            if (email == userBaseInfo.Email) return true;
+            var op = AppHttpContext.Current.User; 
+            EventCenter.Instance.Publish(new IllegalOperationEvent()
+            {
+                Operator = op?.Identity?.Name??"",
+                Payload = new IllegalOperationPayload()
+                {
+                    UserBaseInfo = userBaseInfo,
+                    Content = "企图修改提交Id参数购买套餐"
+                }
+            });
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
+        
     }
 
     public async Task<BaseResult> DeleteById(long id, Website website)

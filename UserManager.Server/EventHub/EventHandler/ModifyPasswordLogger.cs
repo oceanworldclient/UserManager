@@ -5,28 +5,29 @@ using UserManager.Server.Model;
 
 namespace UserManager.Server.EventHub.EventHandler;
 
-public class ModifyPasswordLogger:AbsentEventHandler<ModifyPasswordEvent>
+public class ModifyPasswordLogger : AbsentEventHandler<ModifyPasswordEvent>
 {
-
-    private ModifyPasswordLogger _logger = new();
-
-    private ModifyPasswordLogger()
+    public ModifyPasswordLogger()
     {
-        EventHub.Instance.Register(typeof(ModifyPasswordEvent), this);
+        EventCenter.Instance.Register(typeof(ModifyPasswordEvent), this);
     }
-    
+
     public override async void Handle(ModifyPasswordEvent e)
     {
         var payload = e.Payload;
         var log = new OperationLog()
         {
-            UserEmail = payload.UserMail,
+            UserEmail = payload.UserBaseInfo.Email,
             OptionTable = OperationLog.UserTable,
             Operator = e.Operator,
             Operation = OperationLogType.ModifyPassword,
-            WebSite = payload.Website.ToString(),
+            WebSite = payload.UserBaseInfo.Website.ToString(),
         };
-        if(await OperationLogService.Save(log)) TelegramBotService.PostMessage(TgBotMessage.FromOperationLog(log));
+        if (await OperationLogService.Save(log)) TelegramBotService.PostMessage(TgBotMessage.FromOperationLog(log));
     }
-    
+
+    ~ModifyPasswordLogger()
+    {
+        EventCenter.Instance.UnRegister(typeof(ModifyPasswordEvent), this);
+    }
 }

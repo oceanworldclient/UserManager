@@ -27,4 +27,8 @@ public class OperationLogType
 
     public const string Upgrade = "升级套餐";
 
+    public const string DeleteBought = "删除购买记录";
+
+    public const string Emergency = "高危操作";
+
 }

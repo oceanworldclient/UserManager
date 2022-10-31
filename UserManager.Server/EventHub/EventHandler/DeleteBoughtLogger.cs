@@ -1,34 +1,36 @@
-﻿using UserManager.Server.Constant;
+using UserManager.Server.Constant;
 using UserManager.Server.EventHub.Event;
 using UserManager.Server.Model;
 
 namespace UserManager.Server.EventHub.EventHandler;
 
-public class BuyShopLogger : AbsentEventHandler<BuyShopEvent>
+public class DeleteBoughtLogger:AbsentEventHandler<DeleteBoughtEvent>
 {
-    public BuyShopLogger()
-    {
-        EventCenter.Instance.Register(typeof(BuyShopEvent), this);
-    }
 
-    public override async void Handle(BuyShopEvent e)
+    public DeleteBoughtLogger()
+    {
+        EventCenter.Instance.Register(typeof(DeleteBoughtEvent), this);
+    }
+    
+    public override async void Handle(DeleteBoughtEvent e)
     {
         var payload = e.Payload;
         var log = new OperationLog()
         {
-            UserEmail = payload.User!.Email,
+            UserEmail = payload.UserBaseInfo!.Email,
             OptionTable = OperationLog.UserTable + "," + OperationLog.BoughtTable,
             Operator = e.Operator,
-            Operation = OperationLogType.BuyShop,
+            Operation = OperationLogType.DeleteBought,
             WebSite = e.Website.ToString(),
             Content = $"{payload.Shop!.Name}"
         };
         if (await OperationLogService.Save(log))
             TelegramBotService.PostMessage(TgBotMessage.FromOperationLog(log));
     }
-
-    ~BuyShopLogger()
+    
+    ~DeleteBoughtLogger()
     {
-        EventCenter.Instance.UnRegister(typeof(BuyShopEvent), this);
+        EventCenter.Instance.UnRegister(typeof(DeleteBoughtEvent), this);
     }
+    
 }

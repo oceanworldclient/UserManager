@@ -4,15 +4,15 @@ using Microsoft.AspNetCore.Identity;
 
 namespace UserManager.Server.EventHub;
 
-public class EventHub
+public class EventCenter
 {
     private ConcurrentDictionary<Type, ConcurrentDictionary<string, object>> EventHandlers { get; } = new();
 
-    private EventHub()
+    private EventCenter()
     {
     }
 
-    public static EventHub Instance { get; } = new();
+    public static EventCenter Instance { get; } = new();
 
     public void Publish<T>(T e)
     {

@@ -9,11 +9,9 @@ namespace UserManager.Server.EventHub.EventHandler;
 
 public class ModifyUserLogger : AbsentEventHandler<ModifyUserEvent>
 {
-    private ModifyUserLogger _logger = new();
-
-    private ModifyUserLogger()
+    public ModifyUserLogger()
     {
-        EventHub.Instance.Register(typeof(ModifyUserEvent), this);
+        EventCenter.Instance.Register(typeof(ModifyUserEvent), this);
     }
 
     public override async void Handle(ModifyUserEvent e)
@@ -97,6 +95,15 @@ public class ModifyUserLogger : AbsentEventHandler<ModifyUserEvent>
             operationLogs.Add(log);
         }
 
+        if (oldDto.UserName != newDto.UserName)
+        {
+            var log = CreateNewLogFromPattern(baseLog,
+                oldDto.UserName,
+                newDto.UserName,
+                OperationLogType.ModifyUserName, sb);
+            operationLogs.Add(log);
+        }
+
         if (Math.Abs(oldDto.GroupExpire.Timestamp() - newDto.GroupExpire.Timestamp()) > 3600)
         {
             var log = CreateNewLogFromPattern(baseLog,
@@ -124,4 +131,10 @@ public class ModifyUserLogger : AbsentEventHandler<ModifyUserEvent>
         sb.Append($"\n{operationType}: {log.Content}");
         return log;
     }
+    
+    ~ModifyUserLogger()
+    {
+        EventCenter.Instance.UnRegister(typeof(ModifyUserEvent), this);
+    }
+
 }

@@ -3,6 +3,8 @@ using UserManager.Server.Model;
 using UserManager.Shared;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using UserManager.Server.EventHub;
+using UserManager.Server.EventHub.Event;
 using UserManager.Server.Utils;
 
 namespace UserManager.Server.Service;
@@ -84,6 +86,7 @@ public class UserService : BaseService<User, UserDto>
     {
         try
         {
+            if (!await VerifyUser(dto.UserEmail, dto.UserId, dto.Website)) return false;
             var dbSet = InitialDbContext(dto.Website);
             HandlerPassword(dto);
             var user = new User()
@@ -127,6 +130,7 @@ public class UserService : BaseService<User, UserDto>
     {
         try
         {
+            if (!await VerifyUser(userDto.Email, userDto.Id, userDto.Website)) return false;
             var dbSet = InitialDbContext(userDto.Website);
             var user = Mapper.Map<User>(userDto);
             dbSet.Attach(user);
@@ -152,14 +156,31 @@ public class UserService : BaseService<User, UserDto>
         }
     }
 
-    public async Task<bool> VerifyUser(UserDto userDto)
+    public async Task<bool> VerifyUser(string email, int userId, Website website)
     {
-        var userBase = await GetUserBaseInfoById(userDto.Id, userDto.Website);
-        if (userDto.Email != userBase.Email)
+        var userBaseInfoDto = await GetUserBaseInfoById(userId, website);
+        if (email == userBaseInfoDto.Email) return true;
+        var httpContext = AppHttpContext.Current;
+        EventCenter.Instance.Publish(new IllegalOperationEvent()
         {
-            return false;
-        }
-        return true;
+            Operator = httpContext.User?.ToString() ?? "",
+            Payload = new IllegalOperationPayload()
+            {
+                UserBaseInfo = userBaseInfoDto,
+                Content = "企图通过修改请求用户Id参数来修改用户信息"
+            }
+        });
+        return false;
+    }
+
+    private async Task<UserBaseInfoDto> GetUserBaseInfoByEmail(string email, Website website)
+    {
+        var dbSet = InitialDbContext(website);
+        return await dbSet.Select(it => new UserBaseInfoDto()
+        {
+            Id = it.Id,
+            Email = it.Email
+        }).Where(it => it.Email == email).FirstAsync();
     }
 
     private async Task<UserBaseInfoDto> GetUserBaseInfoById(int id, Website website)

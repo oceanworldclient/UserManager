@@ -2,6 +2,6 @@
 
 namespace UserManager.Server.EventHub.Event;
 
-public class ModifyUserEvent : AbsentEvent<List<UserDto>>
+public class ModifyUserEvent : LogEvent<List<UserDto>>
 {
 }

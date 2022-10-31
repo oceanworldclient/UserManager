@@ -2,14 +2,13 @@
 
 namespace UserManager.Server.EventHub.Event;
 
-public class IllegalOperationEvent:AbsentEvent<UserDto>
+public class IllegalOperationEvent : LogEvent<IllegalOperationPayload>
 {
-    
 }
 
 public class IllegalOperationPayload
 {
-
-    public string Operation { get; set; }
-
+    public UserBaseInfoDto UserBaseInfo { get; set; }
+    public string Content { get; set; }
+    
 }

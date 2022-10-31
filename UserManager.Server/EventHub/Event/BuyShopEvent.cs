@@ -3,15 +3,13 @@ using UserManager.Shared;
 
 namespace UserManager.Server.EventHub.Event;
 
-public class BuyShopEvent:AbsentEvent<BuyShopEventPayload>
+public class BuyShopEvent : LogEvent<BuyShopEventPayload>
 {
-    
 }
 
 public class BuyShopEventPayload
 {
-    public UserDto UserDto { get; set; }
-    
+    public User User { get; set; }
+
     public Shop Shop { get; set; }
-    
 }

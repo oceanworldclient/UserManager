@@ -15,6 +15,8 @@ public class AppHttpContext
             return m_httpContextAccessor.HttpContext;
         }
     }
+
+    public static string Operator => Current.User?.Identity?.Name ?? "None";
     public static T GetSerivce<T>()
     {
         return (T)Current.RequestServices.GetService(typeof(T));

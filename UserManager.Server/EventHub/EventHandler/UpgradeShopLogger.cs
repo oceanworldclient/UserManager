@@ -1,17 +1,18 @@
-﻿using UserManager.Server.Constant;
+using UserManager.Server.Constant;
 using UserManager.Server.EventHub.Event;
 using UserManager.Server.Model;
 
 namespace UserManager.Server.EventHub.EventHandler;
 
-public class BuyShopLogger : AbsentEventHandler<BuyShopEvent>
+public class UpgradeShopLogger : AbsentEventHandler<UpgradeShopEvent>
 {
-    public BuyShopLogger()
+    
+    public UpgradeShopLogger()
     {
-        EventCenter.Instance.Register(typeof(BuyShopEvent), this);
+        EventCenter.Instance.Register(typeof(UpgradeShopEvent), this);
     }
 
-    public override async void Handle(BuyShopEvent e)
+    public override async void Handle(UpgradeShopEvent e)
     {
         var payload = e.Payload;
         var log = new OperationLog()
@@ -19,16 +20,16 @@ public class BuyShopLogger : AbsentEventHandler<BuyShopEvent>
             UserEmail = payload.User!.Email,
             OptionTable = OperationLog.UserTable + "," + OperationLog.BoughtTable,
             Operator = e.Operator,
-            Operation = OperationLogType.BuyShop,
+            Operation = OperationLogType.Upgrade,
             WebSite = e.Website.ToString(),
-            Content = $"{payload.Shop!.Name}"
+            Content = $"{payload.OldShop!.Name} -> {payload.NewShop!.Name}"
         };
         if (await OperationLogService.Save(log))
             TelegramBotService.PostMessage(TgBotMessage.FromOperationLog(log));
     }
 
-    ~BuyShopLogger()
+    ~UpgradeShopLogger()
     {
-        EventCenter.Instance.UnRegister(typeof(BuyShopEvent), this);
+        EventCenter.Instance.UnRegister(typeof(UpgradeShopEvent), this);
     }
 }
