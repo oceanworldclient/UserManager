@@ -1,12 +1,12 @@
-﻿using UserManager.Shared;
+using UserManager.Shared;
 
 namespace UserManager.Server.EventHub.Event;
 
-public class DeleteBoughtEvent : LogEvent<DeleteBoughtPayload>
+public class CloseRenewEvent : LogEvent<CloseRenewPayload>
 {
 }
 
-public class DeleteBoughtPayload
+public class CloseRenewPayload
 {
     public UserBaseInfoDto UserBaseInfo { get; set; }
 

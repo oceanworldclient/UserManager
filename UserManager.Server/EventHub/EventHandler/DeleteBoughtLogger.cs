@@ -4,14 +4,13 @@ using UserManager.Server.Model;
 
 namespace UserManager.Server.EventHub.EventHandler;
 
-public class DeleteBoughtLogger:AbsentEventHandler<DeleteBoughtEvent>
+public class DeleteBoughtLogger : AbsentEventHandler<DeleteBoughtEvent>
 {
-
     public DeleteBoughtLogger()
     {
         EventCenter.Instance.Register(typeof(DeleteBoughtEvent), this);
     }
-    
+
     public override async void Handle(DeleteBoughtEvent e)
     {
         var payload = e.Payload;
@@ -27,10 +26,9 @@ public class DeleteBoughtLogger:AbsentEventHandler<DeleteBoughtEvent>
         if (await OperationLogService.Save(log))
             TelegramBotService.PostMessage(TgBotMessage.FromOperationLog(log));
     }
-    
+
     ~DeleteBoughtLogger()
     {
         EventCenter.Instance.UnRegister(typeof(DeleteBoughtEvent), this);
     }
-    
 }

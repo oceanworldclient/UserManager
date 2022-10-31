@@ -6,6 +6,7 @@ using UserManager.Server.EventHub.Event;
 using UserManager.Server.Model;
 using UserManager.Server.Utils;
 using UserManager.Shared;
+using UserManager.Shared.Request;
 using UserManager.Shared.Response;
 
 namespace UserManager.Server.Service;
@@ -70,19 +71,19 @@ public class BoughtService : BaseService<Bought, BoughtDto>
     public async Task<BaseResult> BuyShop(BuyShopDto buyShopDto)
     {
         if (!await Verify(buyShopDto.UserEmail, buyShopDto.UserId, buyShopDto.Website))
-            return new BaseResult() {Message = "参数不合法"}; 
+            return new BaseResult() {Message = "参数不合法"};
         InitialDbContext(buyShopDto.Website);
         try
         {
             var userDbSet = DbContext!.Set<User>();
             var shop = await DbContext!.Set<Shop>().FindAsync(buyShopDto.ShopId);
-            if (shop == null) return new BaseResult() { Message = "套餐不存在" };
+            if (shop == null) return new BaseResult() {Message = "套餐不存在"};
             var user = await userDbSet.FindAsync(buyShopDto.UserId);
-            if (user == null) return new BaseResult() { Message = "用户不存在" };
-            if (user.Money < shop.Price) return new BaseResult() { Message = "余额不足" };
+            if (user == null) return new BaseResult() {Message = "用户不存在"};
+            if (user.Money < shop.Price) return new BaseResult() {Message = "余额不足"};
             var shopContent = JsonSerializer.Deserialize<ShopContent>(shop.Content);
             if (user.Class != 0 && user.Class != shopContent!.Class)
-                return new BaseResult() { Message = "用户当前套餐等级与购买套餐等级不一致" };
+                return new BaseResult() {Message = "用户当前套餐等级与购买套餐等级不一致"};
 
             userDbSet.Attach(user);
             user.Money -= shop.Price;
@@ -117,6 +118,7 @@ public class BoughtService : BaseService<Bought, BoughtDto>
                 DbContext!.Attach(lastBought);
                 lastBought.Renew = 0L;
             }
+
             await DbContext.Set<Bought>().AddAsync(bought);
             await DbContext.SaveChangesAsync();
             EventCenter.Instance.Publish(new BuyShopEvent()
@@ -128,11 +130,11 @@ public class BoughtService : BaseService<Bought, BoughtDto>
                     User = user
                 }
             });
-            return new BaseResult() { IsSuccess = true, Message = "购买成功" };
+            return new BaseResult() {IsSuccess = true, Message = "购买成功"};
         }
         catch
         {
-            return new BaseResult() { Message = "购买失败" };
+            return new BaseResult() {Message = "购买失败"};
         }
         finally
         {
@@ -151,30 +153,30 @@ public class BoughtService : BaseService<Bought, BoughtDto>
     public async Task<BaseResult> Upgrade(BuyShopDto buyShopDto)
     {
         if (!await Verify(buyShopDto.UserEmail, buyShopDto.UserId, buyShopDto.Website))
-            return new BaseResult() {Message = "参数不合法"}; 
+            return new BaseResult() {Message = "参数不合法"};
         InitialDbContext(buyShopDto.Website);
         try
         {
             var userDbSet = DbContext!.Set<User>();
             var shop = await DbContext!.Set<Shop>().FindAsync(buyShopDto.ShopId);
-            if (shop == null) return new BaseResult() { Message = "套餐不存在" };
+            if (shop == null) return new BaseResult() {Message = "套餐不存在"};
             var user = await userDbSet.FindAsync(buyShopDto.UserId);
-            if (user == null) return new BaseResult() { Message = "用户不存在" };
+            if (user == null) return new BaseResult() {Message = "用户不存在"};
             var shopContent = JsonSerializer.Deserialize<ShopContent>(shop.Content);
             if (user.Class == 0 && user.Class == shopContent!.Class)
-                return new BaseResult() { Message = "当前用户不需要升级套餐，请直接购买" };
+                return new BaseResult() {Message = "当前用户不需要升级套餐，请直接购买"};
 
             var lastBought = await FindLastBought(user.Id);
-            if (lastBought == null) return new BaseResult() { Message = "当前用户不需要升级套餐，请直接购买" };
+            if (lastBought == null) return new BaseResult() {Message = "当前用户不需要升级套餐，请直接购买"};
             var lastShop = await DbContext!.Shops.FindAsync(lastBought.Shopid);
             var lastShoContent = JsonSerializer.Deserialize<ShopContent>(lastShop!.Content);
 
             var delta = (user.ClassExpire - DateTime.Now).TotalDays;
-            var equalMoney = ((decimal)delta / lastShoContent!.ClassExpire) * lastShop.Price;
+            var equalMoney = ((decimal) delta / lastShoContent!.ClassExpire) * lastShop.Price;
 
             var tmpMoney = Math.Round(equalMoney + user.Money, 2);
             if (tmpMoney < shop.Price - 0.2M)
-                return new BaseResult() { Message = $"还差{Math.Round(shop.Price - tmpMoney, 2)}元" };
+                return new BaseResult() {Message = $"还差{Math.Round(shop.Price - tmpMoney, 2)}元"};
 
 
             userDbSet.Attach(user);
@@ -211,11 +213,11 @@ public class BoughtService : BaseService<Bought, BoughtDto>
                     User = user
                 }
             });
-            return new BaseResult() { IsSuccess = true, Message = "购买成功" };
+            return new BaseResult() {IsSuccess = true, Message = "购买成功"};
         }
         catch
         {
-            return new BaseResult() { Message = "购买失败" };
+            return new BaseResult() {Message = "购买失败"};
         }
         finally
         {
@@ -229,13 +231,14 @@ public class BoughtService : BaseService<Bought, BoughtDto>
         {
             InitialDbContext(website);
             var userBaseInfo = await DbContext!.Users
+                .Where(it => it.Id == userId)
                 .Select(it => new UserBaseInfoDto() {Id = it.Id, Email = it.Email, Website = website})
-                .Where(it => it.Id == userId).FirstAsync();
+                .FirstAsync();
             if (email == userBaseInfo.Email) return true;
-            var op = AppHttpContext.Current.User; 
+            var op = AppHttpContext.Current.User;
             EventCenter.Instance.Publish(new IllegalOperationEvent()
             {
-                Operator = op?.Identity?.Name??"",
+                Operator = op?.Identity?.Name ?? "",
                 Payload = new IllegalOperationPayload()
                 {
                     UserBaseInfo = userBaseInfo,
@@ -248,24 +251,57 @@ public class BoughtService : BaseService<Bought, BoughtDto>
         {
             return false;
         }
-        
     }
 
-    public async Task<BaseResult> DeleteById(long id, Website website)
+    private async Task<bool> Verify(long boughtId, int userId, Website website)
     {
         try
         {
             var dbSet = InitialDbContext(website);
-            var bought = new Bought() { Id = id };
-            dbSet.Attach(bought);
-            dbSet.Remove(bought);
-            var res = await DbContext!.SaveChangesAsync() == 1;
-            if (res) return new BaseResult() { IsSuccess = true };
-            return new BaseResult() { IsSuccess = false, Message = "删除失败" };
+            var userIdFromBought = await dbSet.Where(it => it.Id == boughtId).Select(it => it.Userid).FirstAsync();
+            if (userIdFromBought == userId) return true;
+            EventCenter.Instance.Publish(new IllegalOperationEvent()
+            {
+                Website = website,
+                Payload = new IllegalOperationPayload()
+                {
+                    Content = "企图修改提交BoughtId参数修改其他用户购买信息",
+                    UserBaseInfo = new UserBaseInfoDto() {Id = userId, Email = "UserId->" + userId}
+                }
+            });
+            return false;
         }
         catch
         {
-            return new BaseResult() { IsSuccess = false, Message = "删除失败" };
+            return false;
+        }
+    }
+
+    public async Task<BaseResult> DeleteById(DeleteBoughtDto dto)
+    {
+        try
+        {
+            if (!await Verify(dto.Id, dto.UserId, dto.Website)) return new BaseResult() {Message = "删除失败"};
+            var dbSet = InitialDbContext(dto.Website);
+            var bought = await dbSet.FindAsync(dto.Id);
+            if (bought == null) return new BaseResult() {Message = "删除失败"};
+            dbSet.Remove(bought);
+            var res = await DbContext!.SaveChangesAsync() == 1;
+            if (!res) return new BaseResult() {IsSuccess = false, Message = "删除失败"};
+            EventCenter.Instance.Publish(new DeleteBoughtEvent()
+            {
+                Website = dto.Website,
+                Payload = new DeleteBoughtPayload()
+                {
+                    Shop = ShopService.AllShopDic[dto.Website][bought.Shopid],
+                    UserBaseInfo = new UserBaseInfoDto() {Id = dto.UserId, Email = dto.UserEmail, Website = dto.Website}
+                }
+            });
+            return new BaseResult() {IsSuccess = true};
+        }
+        catch
+        {
+            return new BaseResult() {IsSuccess = false, Message = "删除失败"};
         }
         finally
         {
@@ -273,22 +309,32 @@ public class BoughtService : BaseService<Bought, BoughtDto>
         }
     }
 
-    public async Task<BaseResult> CloseRenew(long id, Website website)
+    public async Task<BaseResult> CloseRenew(CloseRenewDto dto)
     {
         try
         {
-            var dbSet = InitialDbContext(website);
-            var bought = new Bought() { Id = id, Renew = 0 };
+            if (!await Verify(dto.Id, dto.UserId, dto.Website)) return new BaseResult() {Message = "关闭失败"};
+            var dbSet = InitialDbContext(dto.Website);
+            var bought = new Bought() {Id = dto.Id, Renew = 0};
             dbSet.Attach(bought);
             bought.Renew = 0L;
             DbContext!.Entry(bought).Property(it => it.Renew).IsModified = true;
             var res = await DbContext!.SaveChangesAsync() == 1;
-            if (res) return new BaseResult() { IsSuccess = true };
-            return new BaseResult() { IsSuccess = false, Message = "操作失败" };
+            if (!res) return new BaseResult() {IsSuccess = false, Message = "操作失败"};
+            EventCenter.Instance.Publish(new CloseRenewEvent()
+            {
+                Website = dto.Website,
+                Payload = new CloseRenewPayload()
+                {
+                    Shop = ShopService.AllShopDic[dto.Website][bought.Shopid],
+                    UserBaseInfo = new UserBaseInfoDto() {Id = dto.UserId, Email = dto.UserEmail, Website = dto.Website}
+                }
+            });
+            return new BaseResult() {IsSuccess = true};
         }
         catch
         {
-            return new BaseResult() { IsSuccess = false, Message = "操作失败" };
+            return new BaseResult() {IsSuccess = false, Message = "操作失败"};
         }
         finally
         {

@@ -42,12 +42,12 @@ public class BoughtController : ControllerBase
     
     public async Task<ActionResult<BaseResult>> DeleteBought([FromBody] DeleteBoughtDto delete)
     {
-        return Ok(await BoughtService.DeleteById(delete.Id, delete.Website));
+        return Ok(await BoughtService.DeleteById(delete));
     }
     
     public async Task<ActionResult<BaseResult>> CloseRenew([FromBody] CloseRenewDto closeRenewDto)
     {
-        return Ok(await BoughtService.CloseRenew(closeRenewDto.Id, closeRenewDto.Website));
+        return Ok(await BoughtService.CloseRenew(closeRenewDto));
     }
 
 }

@@ -72,7 +72,7 @@
             _snackbar?.Show("所选套餐为空");
             return;
         }
-        var res = await ManageClient.BuyShop(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id });
+        var res = await ManageClient.BuyShop(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email});
         if (res.IsSuccess)
         {
             _open = false;
@@ -90,7 +90,7 @@
             _snackbar?.Show("所选套餐为空");
             return;
         }
-        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id });
+        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email});
         if (res.IsSuccess)
         {
             _open = false;

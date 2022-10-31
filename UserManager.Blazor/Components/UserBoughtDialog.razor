@@ -126,7 +126,9 @@
         CloseRenewDto dto = new()
         {
             Website = _userDto.Website,
-            Id = _selectedBoughtDto!.Id
+            Id = _selectedBoughtDto!.Id,
+            UserId = _userDto.Id,
+            UserEmail = _userDto.Email
         };
         var res = await ManageClient.CloseRenew(dto);
         if (res)
@@ -147,7 +149,9 @@
         DeleteBoughtDto deleteBoughtDto = new()
         {
             Website = _userDto.Website,
-            Id = _selectedBoughtDto!.Id
+            Id = _selectedBoughtDto!.Id,
+            UserId = _userDto.Id,
+            UserEmail = _userDto.Email
         };
         var res = await ManageClient.DeleteBought(deleteBoughtDto);
         if (res)

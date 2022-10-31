@@ -176,21 +176,25 @@ public class UserService : BaseService<User, UserDto>
     private async Task<UserBaseInfoDto> GetUserBaseInfoByEmail(string email, Website website)
     {
         var dbSet = InitialDbContext(website);
-        return await dbSet.Select(it => new UserBaseInfoDto()
-        {
-            Id = it.Id,
-            Email = it.Email
-        }).Where(it => it.Email == email).FirstAsync();
+        return await dbSet
+            .Where(it => it.Email == email)
+            .Select(it => new UserBaseInfoDto()
+            {
+                Id = it.Id,
+                Email = it.Email
+            }).FirstAsync();
     }
 
     private async Task<UserBaseInfoDto> GetUserBaseInfoById(int id, Website website)
     {
         var dbSet = InitialDbContext(website);
-        return await dbSet.Select(it => new UserBaseInfoDto()
-        {
-            Id = it.Id,
-            Email = it.Email
-        }).Where(it => it.Id == id).FirstAsync();
+        return await dbSet
+            .Where(it => it.Id == id)
+            .Select(it => new UserBaseInfoDto()
+            {
+                Id = it.Id,
+                Email = it.Email
+            }).FirstAsync();
     }
 
     private static Expression<Func<User, UserDto>> GetSelector(Website website)
