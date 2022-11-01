@@ -40,7 +40,7 @@ public static class AesUtils
         }
         catch (Exception e)
         {
-            return "";
+            return plainText;
         }
     }
 
@@ -78,7 +78,7 @@ public static class AesUtils
         }
         catch
         {
-            return "";
+            return cipherText;
         }
     }
     

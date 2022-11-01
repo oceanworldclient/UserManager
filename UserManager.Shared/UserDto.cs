@@ -103,6 +103,6 @@ public class UserDto
 
     public static IList<string> Keys = new List<string>()
     {
-        EMAIL, USERNAME, CLASS, CLASS_EXPIRE, MONEY, CONTACT, NODE_GROUP, TOTAL_USED, TOTAL_IN_GB, REF_BY, GROUP_EXPIRE
+        EMAIL, USERNAME, CLASS, CLASS_EXPIRE, MONEY, CONTACT, NODE_GROUP, TOTAL_USED, TOTAL_IN_GB, GROUP_EXPIRE
     };
 }

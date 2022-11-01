@@ -8,10 +8,10 @@ namespace UserManager.Blazor;
 
 public class ApiAuthenticationStateProvider : AuthenticationStateProvider
 {
-    private readonly HttpClient _httpClient;
+    private readonly ManageClient _httpClient;
     private readonly ILocalStorageService _localStorage;
 
-    public ApiAuthenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorage)
+    public ApiAuthenticationStateProvider(ManageClient httpClient, ILocalStorageService localStorage)
     {
         _httpClient = httpClient;
         _localStorage = localStorage;
@@ -27,7 +27,7 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
             return new AuthenticationState(new ClaimsPrincipal());
         }
 
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
+        _httpClient.AddAuthJwt(savedToken);
 
         return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(savedToken), "jwt")));
     }

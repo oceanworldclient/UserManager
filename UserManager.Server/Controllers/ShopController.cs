@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using UserManager.Server.Service;
 using UserManager.Shared;
 using UserManager.Shared.Request;
@@ -7,6 +8,7 @@ namespace UserManager.Server.Controllers;
 
 [Route("[controller]/[action]")]
 [ApiController]
+[Authorize(Roles = "God,User")]
 public class ShopController : ControllerBase
 {
     private ShopService ShopService { get; }

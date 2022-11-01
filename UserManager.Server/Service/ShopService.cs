@@ -55,10 +55,6 @@ public class ShopService : BaseService<Shop, ShopDto>
         {
             return new List<ShopDto>();
         }
-        finally
-        {
-            Finish();
-        }
     }
 
     public async Task<ShopDto> GetShopById(long id, Website website)
@@ -86,10 +82,6 @@ public class ShopService : BaseService<Shop, ShopDto>
         catch
         {
             return new Dictionary<long, ShopDto>();
-        }
-        finally
-        {
-            Finish();
         }
     }
 }

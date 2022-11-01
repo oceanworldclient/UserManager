@@ -1,13 +1,16 @@
-﻿using UserManager.Server.Service;
+﻿using Microsoft.AspNetCore.Authorization;
+using UserManager.Server.Service;
+using UserManager.Shared.Request;
 using UserManager.Shared.Response;
-
-namespace UserManager.Server.Controllers;
-
 using Microsoft.AspNetCore.Mvc;
 using UserManager.Shared;
 
+namespace UserManager.Server.Controllers;
+
+
 [ApiController]
 [Route("[controller]/[action]")]
+[Authorize(Roles = "God,User")]
 public class UserController : ControllerBase
 {
     private UserService UserService { get; }
@@ -44,6 +47,12 @@ public class UserController : ControllerBase
     {
         var isSuccess = await UserService.ModifyPassword(dto);
         return Ok(new BaseResult() { IsSuccess = isSuccess });
+    }
+    
+    [HttpPost]
+    public async Task<ActionResult<BaseResult>> ModifyRefBy([FromBody] ModifyRefByDto dto)
+    {
+        return await UserService.ModifyRefBy(dto);
     }
 
 }

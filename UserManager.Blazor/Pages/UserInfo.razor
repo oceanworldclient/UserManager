@@ -1,6 +1,7 @@
 ﻿@page "/UserInfo/{WebId:int?}"
 @using UserManager.Blazor.State
 @inject StateManager StateManager
+@attribute [Authorize(Roles = "God,User")]
 
 <UserInfoTable PanelState="_panelState"/>
 

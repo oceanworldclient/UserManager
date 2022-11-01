@@ -16,10 +16,17 @@ public class EventCenter
 
     public void Publish<T>(T e)
     {
-        if (!EventHandlers.ContainsKey(e.GetType())) return;
-        foreach (var dic in EventHandlers[e.GetType()])
+        try
         {
-            ((AbsentEventHandler<T>)dic.Value).Handle(e);
+            if (!EventHandlers.ContainsKey(e!.GetType())) return;
+            foreach (var dic in EventHandlers[e.GetType()])
+            {
+                ((AbsentEventHandler<T>)dic.Value).Handle(e);
+            }
+        }
+        catch
+        {
+            
         }
     }
 

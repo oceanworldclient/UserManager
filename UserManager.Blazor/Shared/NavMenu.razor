@@ -1,5 +1,8 @@
 ﻿@using UserManager.Blazor.Model
 @using BlazorComponent
+@using UserManager.Blazor.Services
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
 
 <MNavigationDrawer Width="200" Absolute="true" App Permanent Style="overflow: visible">
     <MListItem Class="px-2">
@@ -25,6 +28,8 @@
             }
         </MListItemGroup>
     </MList>
+    <MSpacer/>
+    <MButton Text="true" OnClick="HandleLogout">退出登录</MButton>
 </MNavigationDrawer>
 
 @code {
@@ -37,5 +42,11 @@
         new NavItem() { Href = "/UserInfo/2", Title = "海洋" },
         new NavItem() { Href = "/UserInfo/1", Title = "斑马" }
     };
+    
+    private async Task HandleLogout()
+    {
+        await AuthService.Logout();
+        NavigationManager.NavigateTo("/login");
+    }
 
 }

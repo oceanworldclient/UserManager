@@ -37,10 +37,6 @@ public class BoughtService : BaseService<Bought, BoughtDto>
         {
             return new List<BoughtDto>();
         }
-        finally
-        {
-            Finish();
-        }
     }
 
     public async Task<IList<BoughtDto>> GetLastTenByUserId(int userId, Website website)
@@ -61,10 +57,6 @@ public class BoughtService : BaseService<Bought, BoughtDto>
         catch
         {
             return new List<BoughtDto>();
-        }
-        finally
-        {
-            Finish();
         }
     }
 
@@ -135,10 +127,6 @@ public class BoughtService : BaseService<Bought, BoughtDto>
         catch
         {
             return new BaseResult() {Message = "购买失败"};
-        }
-        finally
-        {
-            Finish();
         }
     }
 
@@ -218,10 +206,6 @@ public class BoughtService : BaseService<Bought, BoughtDto>
         catch
         {
             return new BaseResult() {Message = "购买失败"};
-        }
-        finally
-        {
-            Finish();
         }
     }
 
@@ -303,10 +287,6 @@ public class BoughtService : BaseService<Bought, BoughtDto>
         {
             return new BaseResult() {IsSuccess = false, Message = "删除失败"};
         }
-        finally
-        {
-            Finish();
-        }
     }
 
     public async Task<BaseResult> CloseRenew(CloseRenewDto dto)
@@ -335,10 +315,6 @@ public class BoughtService : BaseService<Bought, BoughtDto>
         catch
         {
             return new BaseResult() {IsSuccess = false, Message = "操作失败"};
-        }
-        finally
-        {
-            Finish();
         }
     }
 }

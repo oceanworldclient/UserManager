@@ -1,13 +1,32 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <MApp>
-    <NavMenu/>
-    @* <MAppBar App Elevation=0 > *@
-    @*     <MAppBarNavIcon></MAppBarNavIcon> *@
-    @* </MAppBar> *@
-    <MMain>
-        <MContainer Class="main-container">
-            @Body
-        </MContainer>
-    </MMain>
+    <AuthorizeView>
+        <NavMenu/>
+        @* <MAppBar App Elevation=0 > *@
+        @*     <MAppBarNavIcon></MAppBarNavIcon> *@
+        @* </MAppBar> *@
+        <MMain>
+            <MContainer Class="main-container">
+                @Body
+            </MContainer>
+        </MMain>
+    </AuthorizeView>
 </MApp>
+
+@code{
+
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity == null || !state.User.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo(("/login"));
+        }
+    // NavigationManager.NavigateTo("/");
+    }
+
+}

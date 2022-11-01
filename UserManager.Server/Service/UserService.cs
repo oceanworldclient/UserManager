@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using UserManager.Server.EventHub;
 using UserManager.Server.EventHub.Event;
 using UserManager.Server.Utils;
+using UserManager.Shared.Request;
+using UserManager.Shared.Response;
 
 namespace UserManager.Server.Service;
 
@@ -25,10 +27,6 @@ public class UserService : BaseService<User, UserDto>
         {
             return new List<UserDto>();
         }
-        finally
-        {
-            Finish();
-        }
     }
 
     public async Task<IList<UserDto>> GetByEmail(string email, Website website)
@@ -40,10 +38,6 @@ public class UserService : BaseService<User, UserDto>
         catch
         {
             return new List<UserDto>();
-        }
-        finally
-        {
-            Finish();
         }
     }
 
@@ -59,10 +53,6 @@ public class UserService : BaseService<User, UserDto>
         {
             return new List<UserDto>();
         }
-        finally
-        {
-            Finish();
-        }
     }
 
     public async Task<IList<UserDto>> GetByUserName(string username, Website website)
@@ -75,10 +65,6 @@ public class UserService : BaseService<User, UserDto>
         catch
         {
             return new List<UserDto>();
-        }
-        finally
-        {
-            Finish();
         }
     }
 
@@ -96,17 +82,65 @@ public class UserService : BaseService<User, UserDto>
             };
             dbSet.Attach(user);
             DbContext!.Entry(user).Property(u => u.Pass).IsModified = true;
-            return await DbContext!.SaveChangesAsync() == 1;
+            if (await DbContext!.SaveChangesAsync() != 1) return false;
+            EventCenter.Instance.Publish(new ModifyPasswordEvent()
+            {
+                Website = dto.Website,
+                Payload = new ModifyPasswordPayload()
+                {
+                    UserBaseInfo = new UserBaseInfoDto()
+                        { Id = dto.UserId, Email = dto.UserEmail, Website = dto.Website }
+                }
+            });
+            return true;
         }
         catch
         {
             return false;
         }
-        finally
+    }
+
+    public async Task<BaseResult> ModifyRefBy(ModifyRefByDto dto)
+    {
+        try
         {
-            Finish();
+            if (!await VerifyUser(dto.UserEmail, dto.UserId, dto.Website))
+                return new BaseResult() { Message = "异常，修改失败" };
+            var dbSet = InitialDbContext(dto.Website);
+            var refBy = await dbSet
+                .Where(it => it.Email == dto.RefBy)
+                .Select(it => new UserBaseInfoDto()
+                {
+                    Id = it.Id,
+                    Email = it.Email,
+                    Website = dto.Website
+                }).FirstAsync();
+            if (refBy == null) return new BaseResult() { Message = $"{dto.RefBy} 不存在" };
+            var user = new User()
+            {
+                Id = dto.UserId,
+                RefBy = refBy.Id
+            };
+            dbSet.Attach(user);
+            DbContext!.Entry(user).Property(u => u.Pass).IsModified = true;
+            if (await DbContext!.SaveChangesAsync() != 1) return new BaseResult() { Message = "异常，修改失败" };
+            EventCenter.Instance.Publish(new ModifyPasswordEvent()
+            {
+                Website = dto.Website,
+                Payload = new ModifyPasswordPayload()
+                {
+                    UserBaseInfo = new UserBaseInfoDto()
+                        { Id = dto.UserId, Email = dto.UserEmail, Website = dto.Website }
+                }
+            });
+            return new BaseResult() { IsSuccess = true, Message = "" };
+        }
+        catch
+        {
+            return new BaseResult() { Message = "异常，修改失败" };
         }
     }
+
 
     private static void HandlerPassword(ModifyPasswordDto dto)
     {
@@ -132,6 +166,8 @@ public class UserService : BaseService<User, UserDto>
         {
             if (!await VerifyUser(userDto.Email, userDto.Id, userDto.Website)) return false;
             var dbSet = InitialDbContext(userDto.Website);
+            var list = await GetById(userDto.Id, userDto.Website);
+            list.Add(userDto);
             var user = Mapper.Map<User>(userDto);
             dbSet.Attach(user);
             DbContext!.Entry(user).Property(u => u.UserName).IsModified = true;
@@ -144,15 +180,17 @@ public class UserService : BaseService<User, UserDto>
             DbContext!.Entry(user).Property(u => u.RefBy).IsModified = true;
             DbContext!.Entry(user).Property(u => u.GroupExpire).IsModified = true;
             // dbSet.Update(user);
-            return await DbContext!.SaveChangesAsync() == 1;
+            if (await DbContext!.SaveChangesAsync() != 1) return false;
+            EventCenter.Instance.Publish(new ModifyUserEvent()
+            {
+                Payload = list,
+                Website = userDto.Website
+            });
+            return true;
         }
         catch
         {
             return false;
-        }
-        finally
-        {
-            Finish();
         }
     }
 
@@ -160,10 +198,8 @@ public class UserService : BaseService<User, UserDto>
     {
         var userBaseInfoDto = await GetUserBaseInfoById(userId, website);
         if (email == userBaseInfoDto.Email) return true;
-        var httpContext = AppHttpContext.Current;
         EventCenter.Instance.Publish(new IllegalOperationEvent()
         {
-            Operator = httpContext.User?.ToString() ?? "",
             Payload = new IllegalOperationPayload()
             {
                 UserBaseInfo = userBaseInfoDto,

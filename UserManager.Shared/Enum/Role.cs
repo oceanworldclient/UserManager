@@ -3,5 +3,6 @@
 public enum Role
 {
     God,
-    Empty
+    Empty,
+    User
 }

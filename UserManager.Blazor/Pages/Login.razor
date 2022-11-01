@@ -10,10 +10,12 @@
         <MTextField TValue="string"
                     Label="Email"
                     Placeholder="Email"
+                    @bind-Value="_loginModel.Email"
                     Outlined
                     HideDetails="@("auto")"/>
         <MTextField TValue="string"
                     Class="mt-10"
+                    @bind-Value="_loginModel.Password"
                     Label="Password"
                     Type="@(_show ? "text" : "password")"
                     Placeholder="Password"

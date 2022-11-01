@@ -12,7 +12,7 @@ public class ManageClient
     private HttpClient HttpClient { get; }
 
     public HttpRequestHeaders DefaultRequestHeaders => HttpClient.DefaultRequestHeaders;
-
+    
     private static string UserController => "User";
 
     private static string ShopController => "Shop";
@@ -34,6 +34,11 @@ public class ManageClient
         HttpClient = client;
     }
 
+    public void AddAuthJwt(string savedToken)
+    {
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
+    }
+
     public async Task<IList<UserDto>> FindUser(QueryUserDto userDto)
     {
         var res = await PostAsJson<List<UserDto>>($"{UserController}/FindUser", userDto,
@@ -51,6 +56,13 @@ public class ManageClient
     public async Task<bool> ModifyPassword(ModifyPasswordDto dto)
     {
         var resp = await PostAsJson<BaseResult>($"{UserController}/ModifyPassword", dto,
+            JsonContext.Default.BaseResult);
+        return resp?.IsSuccess ?? false;
+    }
+    
+    public async Task<bool> ModifyRefBy(ModifyRefByDto dto)
+    {
+        var resp = await PostAsJson<BaseResult>($"{UserController}/ModifyRefBy", dto,
             JsonContext.Default.BaseResult);
         return resp?.IsSuccess ?? false;
     }
@@ -79,7 +91,7 @@ public class ManageClient
 
     public async Task<RegisterResult> Register(RegisterModel registerModel)
     {
-        var res = await PostAsJson<RegisterResult>($"{AuthController}/Register", registerModel,
+        var res = await PostAsJson($"{AuthController}/Register", registerModel,
             JsonContext.Default.RegisterResult);
         return res ?? new RegisterResult() { Successful = false };
     }

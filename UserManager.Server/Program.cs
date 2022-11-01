@@ -2,6 +2,7 @@
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -17,10 +18,11 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
 builder.Services.AddDbContext<UserDbContext>(option =>
-    option.UseMySQL(configuration.GetConnectionString("Manage")));
-ServiceConfig.Instance.AddConnectionString("World", configuration.GetConnectionString("World"));
-ServiceConfig.Instance.AddConnectionString("Ocean", configuration.GetConnectionString("Ocean"));
-ServiceConfig.Instance.AddConnectionString("Zebra", configuration.GetConnectionString("Zebra"));
+    option.UseMySQL(configuration.GetConnectionString("Manage").Decrypt()));
+ServiceConfig.Instance.AddConnectionString("World", configuration.GetConnectionString("World").Decrypt());
+ServiceConfig.Instance.AddConnectionString("Ocean", configuration.GetConnectionString("Ocean").Decrypt());
+ServiceConfig.Instance.AddConnectionString("Zebra", configuration.GetConnectionString("Zebra").Decrypt());
+builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<UserDbContext>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -48,6 +50,7 @@ builder.Services.AddResponseCompression(options =>
 });
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<TelegramBotService>(client => client.BaseAddress = new Uri(configuration["TelegramBotApi"].Decrypt()));
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddPanelService();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -56,7 +59,7 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 var app = builder.Build();
 
-AppHttpContext.Configure(app.Services.GetService<IHttpContextAccessor>());
+AppHttpContext.Configure(app.Services.GetService<IHttpContextAccessor>()!);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -79,6 +82,8 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 
 
 app.MapRazorPages();

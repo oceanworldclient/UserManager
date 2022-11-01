@@ -17,11 +17,6 @@ public class BaseService<TE, TD> : IDisposable, IService<TE, TD> where TE : clas
         Mapper = mapper;
     }
 
-    protected void Finish()
-    {
-        DbContext?.Dispose();
-    }
-
     protected DbSet<TE> InitialDbContext(Website website)
     {
         if (DbContext != null) return DbContext.Set<TE>();

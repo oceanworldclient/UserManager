@@ -18,6 +18,7 @@ public class OperationLogService
         try
         {
             await UserDbContext.OperationLogs.AddRangeAsync(operationLogs);
+            await UserDbContext.SaveChangesAsync();
             return true;
         }
         catch

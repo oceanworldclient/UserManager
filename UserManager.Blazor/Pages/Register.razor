@@ -8,13 +8,32 @@
     <div class="mt-2 mx-auto text-center" style="width: 420px;">
         <h3 class="mt-2 mb-12">注册</h3>
         <MTextField TValue="string"
-                    Label="Email"
-                    Placeholder="Email"
+                    Label="Name"
+                    Placeholder="Name"
+                    @bind-Value="_registerModel.Name"
                     Outlined
                     HideDetails="@("auto")"/>
         <MTextField TValue="string"
+                    Label="Email"
+                    Class="mt-10"
+                    Placeholder="Email"
+                    @bind-Value="_registerModel.Email"
+                    Outlined
+                    HideDetails="@("auto")"/>
+        <MTextField TValue="string"
+                    @bind-Value="_registerModel.Password"
                     Class="mt-10"
                     Label="Password"
+                    Type="@(_show ? "text" : "password")"
+                    Placeholder="Password"
+                    AppendIcon="@(_show ? "mdi-eye" : "mdi-eye-off")"
+                    OnAppendClick="() => _show = !_show"
+                    Outlined="true"
+                    HideDetails="@("auto")"/>
+        <MTextField TValue="string"
+                    @bind-Value="_registerModel.ConfirmPassword"
+                    Class="mt-10"
+                    Label="Confirm Password"
                     Type="@(_show ? "text" : "password")"
                     Placeholder="Password"
                     AppendIcon="@(_show ? "mdi-eye" : "mdi-eye-off")"
@@ -26,7 +45,6 @@
     </div>
 </MCard>
 <Snackbar @ref="_snackbar"/>
-
 
 
 @code {

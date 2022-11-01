@@ -17,6 +17,7 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddHttpClient<ManageClient>(
     client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSingleton<StateManager>();

@@ -34,7 +34,7 @@ public class AuthService : IAuthService
         {
             await _localStorage.SetItemAsync("SSPanelAuthToken", result.Token);
             ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(result.Token);
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.Token);
+            _httpClient.AddAuthJwt(result.Token);
             return result;
         }
 

@@ -4,7 +4,7 @@
     <ChildContent>
         <MCard>
             <MCardTitle Class="text-h5">
-                修改用户密码
+                修改邀请人
             </MCardTitle>
             <MCardSubtitle>
                 @_userDto.Email
@@ -12,7 +12,7 @@
             <MDivider/>
             <MCardText>
                 <MListItem Dense="true">
-                    <MTextField TValue="string" @bind-Value="_password" HideDetails="true"></MTextField>
+                    <MTextField TValue="string" @bind-Value="_refBy" HideDetails="true"></MTextField>
                 </MListItem>
             </MCardText>
             <MCardActions>
@@ -28,7 +28,7 @@
 
     private bool _open;
 
-    private string _password = "";
+    private string _refBy = "";
 
     private UserDto _userDto;
 
@@ -44,10 +44,10 @@
 
     private async void Confirm()
     {
-        if (!string.IsNullOrEmpty(_password))
+        if (!string.IsNullOrEmpty(_refBy))
         {
-            var request = new ModifyPasswordDto() { UserId = _userDto.Id, NewPassword = _password, Website = _userDto.Website };
-            var saveUser = await ManageClient.ModifyPassword(request);
+            var request = new ModifyRefByDto() { UserId = _userDto.Id, RefBy = _refBy, Website = _userDto.Website };
+            var saveUser = await ManageClient.ModifyRefBy(request);
             _callback?.Invoke(saveUser ? "修改成功" : "修改失败", _userDto, false);
         }
         _open = false;

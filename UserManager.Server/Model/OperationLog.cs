@@ -34,7 +34,7 @@ public class OperationLog
     [StringLength(256)]
     public string OldValue { get; set; } = "";
 
-    [Column("OldValue")]
+    [Column("NewValue")]
     [StringLength(256)]
     public string NewValue { get; set; } = "";
 
@@ -42,7 +42,7 @@ public class OperationLog
     [StringLength(1024)]
     public string Content { get; set; } = "";
 
-    [Column("Content")] 
+    [Column("WebSite")] 
     [StringLength(64)]
     public string WebSite { get; set; } = "";
 
