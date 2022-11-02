@@ -34,7 +34,6 @@ public class AuthService : IAuthService
         {
             await _localStorage.SetItemAsync("SSPanelAuthToken", result.Token);
             ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(result.Token);
-            _httpClient.AddAuthJwt(result.Token);
             return result;
         }
 
@@ -45,6 +44,5 @@ public class AuthService : IAuthService
     {
         await _localStorage.RemoveItemAsync("SSPanelAuthToken");
         ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
-        _httpClient.DefaultRequestHeaders.Authorization = null;
     }
 }

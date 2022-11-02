@@ -25,7 +25,6 @@ public class BoughtService : BaseService<Bought, BoughtDto>
         try
         {
             var res = await GetByExpression(it => it.Userid == userId, website);
-            if (!ShopService.AllShopDic.ContainsKey(website)) await ShopService.GetAllShops(website);
             foreach (var bought in res)
             {
                 bought.ShopName = (await ShopService.GetShopById(bought.Shopid, website)).Name;
@@ -77,6 +76,7 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             if (user.Class != 0 && user.Class != shopContent!.Class)
                 return new BaseResult() {Message = "用户当前套餐等级与购买套餐等级不一致"};
 
+            var before = Mapper.Map<UserDto>(user);
             userDbSet.Attach(user);
             user.Money -= shop.Price;
             if (user.Class == 0)
@@ -113,13 +113,15 @@ public class BoughtService : BaseService<Bought, BoughtDto>
 
             await DbContext.Set<Bought>().AddAsync(bought);
             await DbContext.SaveChangesAsync();
+            var after = Mapper.Map<UserDto>(user);
             EventCenter.Instance.Publish(new BuyShopEvent()
             {
                 Website = buyShopDto.Website,
                 Payload = new BuyShopEventPayload()
                 {
                     Shop = shop,
-                    User = user
+                    BeforeBought = before,
+                    AfterBought = after
                 }
             });
             return new BaseResult() {IsSuccess = true, Message = "购买成功"};
@@ -167,6 +169,7 @@ public class BoughtService : BaseService<Bought, BoughtDto>
                 return new BaseResult() {Message = $"还差{Math.Round(shop.Price - tmpMoney, 2)}元"};
 
 
+            var before = Mapper.Map<UserDto>(user);
             userDbSet.Attach(user);
             user.Money = tmpMoney - shop.Price;
 
@@ -191,6 +194,7 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             lastBought.Renew = 0L;
             await DbContext.Set<Bought>().AddAsync(bought);
             await DbContext.SaveChangesAsync();
+            var after = Mapper.Map<UserDto>(user);
             EventCenter.Instance.Publish(new UpgradeShopEvent()
             {
                 Website = buyShopDto.Website,
@@ -198,7 +202,8 @@ public class BoughtService : BaseService<Bought, BoughtDto>
                 {
                     NewShop = shop,
                     OldShop = lastShop,
-                    User = user
+                    BeforeBought = before,
+                    AfterBought = after
                 }
             });
             return new BaseResult() {IsSuccess = true, Message = "购买成功"};
@@ -277,7 +282,7 @@ public class BoughtService : BaseService<Bought, BoughtDto>
                 Website = dto.Website,
                 Payload = new DeleteBoughtPayload()
                 {
-                    Shop = ShopService.AllShopDic[dto.Website][bought.Shopid],
+                    Shop = (await ShopService.GetAllShops(dto.Website))[bought.Shopid],
                     UserBaseInfo = new UserBaseInfoDto() {Id = dto.UserId, Email = dto.UserEmail, Website = dto.Website}
                 }
             });
@@ -306,7 +311,7 @@ public class BoughtService : BaseService<Bought, BoughtDto>
                 Website = dto.Website,
                 Payload = new CloseRenewPayload()
                 {
-                    Shop = ShopService.AllShopDic[dto.Website][bought.Shopid],
+                    Shop = (await ShopService.GetAllShops(dto.Website))[bought.Shopid],
                     UserBaseInfo = new UserBaseInfoDto() {Id = dto.UserId, Email = dto.UserEmail, Website = dto.Website}
                 }
             });

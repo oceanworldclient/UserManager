@@ -9,7 +9,10 @@ public class BuyShopEvent : LogEvent<BuyShopEventPayload>
 
 public class BuyShopEventPayload
 {
-    public User User { get; set; }
-
     public Shop Shop { get; set; }
+    
+    public UserDto BeforeBought { get; set; }
+    
+    public UserDto AfterBought { get; set; }
+    
 }

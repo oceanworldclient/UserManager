@@ -22,21 +22,8 @@ builder.Services.AddDbContext<UserDbContext>(option =>
 ServiceConfig.Instance.AddConnectionString("World", configuration.GetConnectionString("World").Decrypt());
 ServiceConfig.Instance.AddConnectionString("Ocean", configuration.GetConnectionString("Ocean").Decrypt());
 ServiceConfig.Instance.AddConnectionString("Zebra", configuration.GetConnectionString("Zebra").Decrypt());
-builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<UserDbContext>();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = configuration["JwtIssuer"],
-            ValidAudience = configuration["JwtAudience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSecurityKey"]))
-        };
-    });
+builder.Services.ConfigureIdentity();
+builder.Services.ConfigureJwt(configuration);
 builder.Services.AddControllersWithViews().AddJsonOptions(opt =>
 {
     opt.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);

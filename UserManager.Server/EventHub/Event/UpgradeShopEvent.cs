@@ -10,9 +10,12 @@ public class UpgradeShopEvent : LogEvent<UpgradeShopPayload>
 public class UpgradeShopPayload
 {
     
-    public User User { get; set; }
-
     public Shop OldShop { get; set; }
 
     public Shop NewShop { get; set; }
+    
+    public UserDto BeforeBought { get; set; }
+    
+    public UserDto AfterBought { get; set; }
+    
 }

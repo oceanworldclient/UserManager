@@ -40,24 +40,28 @@ public class UserDto
     [JsonConverter(typeof(DateTimeConverter))]
     public DateTime GroupExpire { get; set; }
 
+    [JsonIgnore]
     public double TotalInGb
     {
         get => Math.Round(TransferEnable / 1024.0 / 1024.0 / 1024.0, 2);
         set => TransferEnable = (long)value * 1024 * 1024 * 1024;
     }
 
+    [JsonIgnore]
     public string ClassExpireStr
     {
         get => ClassExpire.FormatString();
         set => ClassExpire = DateTimeExtension.FromString(value);
     }
 
+    [JsonIgnore]
     public string GroupExpireStr
     {
         get => GroupExpire.FormatString();
         set => GroupExpire = DateTimeExtension.FromString(value);
     }
 
+    [JsonIgnore]
     public double UsedInGb => Math.Round((U + D) / 1024.0 / 1024 / 1024, 2);
 
     public const string EMAIL = "邮箱";

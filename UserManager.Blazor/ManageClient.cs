@@ -1,6 +1,6 @@
-﻿using System.Net.Http.Headers;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json.Serialization.Metadata;
+using UserManager.Blazor.State;
 using UserManager.Shared;
 using UserManager.Shared.Request;
 using UserManager.Shared.Response;
@@ -11,8 +11,6 @@ public class ManageClient
 {
     private HttpClient HttpClient { get; }
 
-    public HttpRequestHeaders DefaultRequestHeaders => HttpClient.DefaultRequestHeaders;
-    
     private static string UserController => "User";
 
     private static string ShopController => "Shop";
@@ -29,26 +27,24 @@ public class ManageClient
     //     { "list" + nameof(UserDto), JsonContext.Default.ListUserDto }
     // };
 
-    public ManageClient(HttpClient client)
+    public ManageClient(HttpClient client, AuthState authState)
     {
         HttpClient = client;
+        HttpClient.DefaultRequestHeaders.Authorization = authState.Authorization;
+        // AuthState = authState;
     }
-
-    public void AddAuthJwt(string savedToken)
-    {
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
-    }
+    
 
     public async Task<IList<UserDto>> FindUser(QueryUserDto userDto)
     {
-        var res = await PostAsJson<List<UserDto>>($"{UserController}/FindUser", userDto,
+        var res = await PostAsJson($"{UserController}/FindUser", userDto,
             JsonContext.Default.ListUserDto);
         return res ?? new List<UserDto>();
     }
 
     public async Task<bool> SaveUser(UserDto userDto)
     {
-        var resp = await PostAsJson<BaseResult>($"{UserController}/UpdateUser", userDto,
+        var resp = await PostAsJson($"{UserController}/UpdateUser", userDto,
             JsonContext.Default.BaseResult);
         return resp?.IsSuccess ?? false;
     }
@@ -85,7 +81,7 @@ public class ManageClient
 
     public async Task<LoginResult> Login(LoginModel loginModel)
     {
-        var res = await PostAsJson<LoginResult>($"{AuthController}/Login", loginModel, JsonContext.Default.LoginResult);
+        var res = await PostAsJson($"{AuthController}/Login", loginModel, JsonContext.Default.LoginResult);
         return res ?? new LoginResult() { Successful = false };
     }
 

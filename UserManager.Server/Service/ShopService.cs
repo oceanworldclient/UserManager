@@ -8,9 +8,9 @@ namespace UserManager.Server.Service;
 
 public class ShopService : BaseService<Shop, ShopDto>
 {
-    public static ConcurrentDictionary<Website, ConcurrentDictionary<long, ShopDto>> ShopDic { get; } = new();
+    private static ConcurrentDictionary<Website, ConcurrentDictionary<long, ShopDto>> ShopDic { get; } = new();
 
-    public static ConcurrentDictionary<Website, ConcurrentDictionary<long, ShopDto>> AllShopDic { get; } = new();
+    private static ConcurrentDictionary<Website, ConcurrentDictionary<long, ShopDto>> AllShopDic { get; } = new();
 
     public ShopService(IMapper mapper) : base(mapper)
     {
