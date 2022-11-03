@@ -52,14 +52,6 @@
                         <MTextField TValue="string" Flat="true" Dense="true" @bind-Value="@_userDto.GroupExpireStr"></MTextField>
                     </MListItemContent>
                 </MListItem>
-                <MListItem>
-                    <MListItemContent>
-                        邀请人Id :
-                    </MListItemContent>
-                    <MListItemContent Class="align-end">
-                        <MTextField TValue="int" Flat="true" Dense="true" @bind-Value="@_userDto.RefBy"></MTextField>
-                    </MListItemContent>
-                </MListItem>
             </MCardText>
             <MCardActions>
                 <MButton Color="red darken-1" Text="true" OnClick="@(() => _open = false)">Cancel</MButton>

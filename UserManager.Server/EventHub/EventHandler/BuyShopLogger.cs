@@ -34,12 +34,16 @@ public class BuyShopLogger : AbsentEventHandler<BuyShopEvent>
     {
         var sb = new StringBuilder();
         sb.Append('\n')
-            .Append($"等级: {before.Class} -> {after.Class}").Append('\n')
-            .Append($"余额: {before.Money} -> {after.Money}").Append('\n')
-            .Append($"等级时间: {before.ClassExpireStr} -> {after.ClassExpireStr}")
-            .Append($"分组: {before.NodeGroup} -> {after.NodeGroup}").Append('\n')
-            .Append($"分组时间: {before.GroupExpireStr} -> {after.GroupExpireStr}").Append('\n')
-            .Append($"流量: {before.TotalInGb}GB -> {after.TotalInGb}GB");
+            .Append($"等级: {before.Class} → {after.Class}").Append('\n')
+            .Append($"余额: {before.Money} → {after.Money}, diff = {after.Money - before.Money}").Append('\n')
+            .Append($"等级时间: {before.ClassExpireStr} → {after.ClassExpireStr}\n")
+            .Append($"流量: {before.TotalInGb}GB → {after.TotalInGb}GB");
+        if (before.GroupExpireStr != after.GroupExpireStr || before.NodeGroup != after.NodeGroup)
+        {
+            sb.Append('\n').Append($"分组: {before.NodeGroup} → {after.NodeGroup}").Append('\n')
+                .Append($"分组时间: {before.GroupExpireStr} → {after.GroupExpireStr}");
+        }
+
         return sb.ToString();
     }
 

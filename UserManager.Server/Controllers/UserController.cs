@@ -36,7 +36,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<BaseResult>> UpdateUser([FromBody] UserDto userDto)
+    public async Task<ActionResult<BaseResult>> ModifyUser([FromBody] UserDto userDto)
     {
         var isSuccess = await UserService.ModifyUser(userDto);
         return Ok(new BaseResult() { IsSuccess = isSuccess });

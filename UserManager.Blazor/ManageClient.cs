@@ -44,7 +44,7 @@ public class ManageClient
 
     public async Task<bool> SaveUser(UserDto userDto)
     {
-        var resp = await PostAsJson($"{UserController}/UpdateUser", userDto,
+        var resp = await PostAsJson($"{UserController}/ModifyUser", userDto,
             JsonContext.Default.BaseResult);
         return resp?.IsSuccess ?? false;
     }

@@ -78,9 +78,9 @@ public class UserDto
 
     public const string MONEY = "余额";
 
-    public const string TOTAL_IN_GB = "总流量";
+    public const string TOTAL_IN_GB = "总流量(GB)";
 
-    public const string TOTAL_USED = "已用流量";
+    public const string TOTAL_USED = "已用流量(GB)";
 
     public const string REF_BY = "邀请人";
 
@@ -99,7 +99,6 @@ public class UserDto
             MONEY => Money.ToString(),
             TOTAL_USED => UsedInGb.ToString(),
             TOTAL_IN_GB => TotalInGb.ToString(),
-            REF_BY => RefBy.ToString(),
             GROUP_EXPIRE => GroupExpireStr,
             _ => ""
         };

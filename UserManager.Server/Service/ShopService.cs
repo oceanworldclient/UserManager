@@ -67,7 +67,11 @@ public class ShopService : BaseService<Shop, ShopDto>
     {
         try
         {
-            if (AllShopDic.ContainsKey(website)) return AllShopDic[website];
+            if (AllShopDic.ContainsKey(website)) 
+            {
+                var res = AllShopDic[website];
+                return res;
+            }
             var dbSet = InitialDbContext(website);
             var shops = await dbSet.ToListAsync();
             ConcurrentDictionary<long, ShopDto> dic = new();

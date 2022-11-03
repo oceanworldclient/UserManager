@@ -255,7 +255,7 @@ public class BoughtService : BaseService<Bought, BoughtDto>
                 Payload = new IllegalOperationPayload()
                 {
                     Content = "企图修改提交BoughtId参数修改其他用户购买信息",
-                    UserBaseInfo = new UserBaseInfoDto() {Id = userId, Email = "UserId->" + userId}
+                    UserBaseInfo = new UserBaseInfoDto() {Id = userId, Email = "UserId→" + userId}
                 }
             });
             return false;
@@ -300,10 +300,9 @@ public class BoughtService : BaseService<Bought, BoughtDto>
         {
             if (!await Verify(dto.Id, dto.UserId, dto.Website)) return new BaseResult() {Message = "关闭失败"};
             var dbSet = InitialDbContext(dto.Website);
-            var bought = new Bought() {Id = dto.Id, Renew = 0};
-            dbSet.Attach(bought);
+            var bought = await dbSet.FindAsync(dto.Id);
+            if (bought == null) return new BaseResult() {Message = "删除失败"};
             bought.Renew = 0L;
-            DbContext!.Entry(bought).Property(it => it.Renew).IsModified = true;
             var res = await DbContext!.SaveChangesAsync() == 1;
             if (!res) return new BaseResult() {IsSuccess = false, Message = "操作失败"};
             EventCenter.Instance.Publish(new CloseRenewEvent()

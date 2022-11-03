@@ -80,8 +80,8 @@ public class ModifyUserLogger : AbsentEventHandler<ModifyUserEvent>
         if (oldDto.TransferEnable != newDto.TransferEnable)
         {
             var log = CreateNewLogFromPattern(baseLog,
-                oldDto.TransferEnable.ToString(),
-                newDto.TransferEnable.ToString(),
+                oldDto.TotalInGb + "GB",
+                newDto.TotalInGb + "GB",
                 OperationLogType.ModifyTransferEnable, sb);
             operationLogs.Add(log);
         }
@@ -127,7 +127,7 @@ public class ModifyUserLogger : AbsentEventHandler<ModifyUserEvent>
         log.Operation = operationType;
         log.OldValue = oldValue;
         log.NewValue = newValue;
-        log.Content = $"{log.OldValue} -> {log.NewValue}";
+        log.Content = $"{log.OldValue} → {log.NewValue}";
         sb.Append($"\n{operationType}: {log.Content}");
         return log;
     }

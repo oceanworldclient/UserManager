@@ -162,7 +162,7 @@
         _snackbar?.Show(message);
         if (refresh)
         {
-            PanelState.Users = await ManageClient.FindUser(new QueryUserDto() { Id = userDto.Id, Type = QueryUserDto.QueryType.Id });
+            PanelState.Users = await ManageClient.FindUser(new QueryUserDto() { Email = userDto.Email, Type = QueryUserDto.QueryType.Email });
             StateHasChanged();
         }
     }
