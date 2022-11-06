@@ -14,4 +14,10 @@ public static class DateTimeUtils
         return dd.Add(ts);
     }
 
+    public static double CalDiffDays(this DateTime dt, DateTime other)
+    {
+        var diff = dt - other;
+        return Math.Round(diff.TotalDays, 1);
+    }
+
 }

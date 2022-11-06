@@ -25,6 +25,7 @@ public static class PanelServiceCollectionExtensions
         services.AddSingleton(new ModifyUserLogger());
         services.AddSingleton(new UpgradeShopLogger());
         services.AddSingleton(new IllegalOperationLogger());
+        services.AddSingleton(new RestoreBoughtLogger());
         services.AddScoped<AuthService>();
     }
     
@@ -55,6 +56,7 @@ public static class PanelServiceCollectionExtensions
 
     public static void ConfigureJwt(this IServiceCollection services, IConfiguration configuration)
     {
+        var jwtConfig = configuration.GetSection("JwtConfig");
         services.AddAuthentication(opt =>
             {
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -68,9 +70,9 @@ public static class PanelServiceCollectionExtensions
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["JwtIssuer"],
-                    ValidAudience = configuration["JwtAudience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSecurityKey"]))
+                    ValidIssuer = jwtConfig["ValidIssuer"],
+                    ValidAudience = jwtConfig["ValidAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig["Secret"]))
                 };
             });
     }

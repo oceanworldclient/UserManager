@@ -1,4 +1,6 @@
-﻿namespace UserManager.Server.Model;
+﻿using UserManager.Server.Entity;
+
+namespace UserManager.Server.Model;
 
 public class TgBotMessage
 {

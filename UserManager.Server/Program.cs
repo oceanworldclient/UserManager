@@ -1,11 +1,7 @@
-﻿using System.Text;
-using System.Text.Encodings.Web;
+﻿using System.Text.Encodings.Web;
 using System.Text.Unicode;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using UserManager.Server;
 using UserManager.Server.EntityFramework;
 using UserManager.Server.Service;
@@ -36,12 +32,10 @@ builder.Services.AddResponseCompression(options =>
         new[] {"application/octet-stream"});
 });
 builder.Services.AddRazorPages();
-builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<TelegramBotService>(client => client.BaseAddress = new Uri(configuration["TelegramBotApi"].Decrypt()));
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddPanelService();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-//builder.Services.AddSwaggerGen();
 
 
 var app = builder.Build();

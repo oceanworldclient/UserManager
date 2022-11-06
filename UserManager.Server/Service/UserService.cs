@@ -57,9 +57,10 @@ public class UserService : BaseService<User, UserDto>
 
     public async Task<IList<UserDto>> GetByUserName(string username, Website website)
     {
+        if (username == "") return new List<UserDto>();
         try
         {
-            return await GetByExpression(it => it.UserName.Contains(username) && it.IsAdmin == 0, GetSelector(website),
+            return await TakeByExpression(it => it.UserName.Contains(username) && it.IsAdmin == 0, GetSelector(website),
                 website);
         }
         catch
@@ -106,6 +107,7 @@ public class UserService : BaseService<User, UserDto>
         {
             if (!await VerifyUser(dto.UserEmail, dto.UserId, dto.Website))
                 return new BaseResult() { Message = "异常，修改失败" };
+            if (dto.UserEmail == dto.RefBy) return new BaseResult() { Message = "不能修改成自己" };
             var dbSet = InitialDbContext(dto.Website);
             var refBy = await dbSet
                 .Where(it => it.Email == dto.RefBy)
@@ -114,12 +116,12 @@ public class UserService : BaseService<User, UserDto>
                     Id = it.Id,
                     Email = it.Email,
                     Website = dto.Website
-                }).FirstAsync();
-            if (refBy == null) return new BaseResult() { Message = $"{dto.RefBy} 不存在" };
+                }).Take(1).ToListAsync();
+            if (refBy.Count == 0) return new BaseResult() { Message = $"{dto.RefBy} 不存在" };
             var user = new User()
             {
                 Id = dto.UserId,
-                RefBy = refBy.Id
+                RefBy = refBy[0].Id
             };
             dbSet.Attach(user);
             DbContext!.Entry(user).Property(u => u.Pass).IsModified = true;
@@ -153,7 +155,7 @@ public class UserService : BaseService<User, UserDto>
                 dto.NewPassword = SHA256Utils.Encrypt(dto.NewPassword);
                 return;
             case Website.Zebra:
-                dto.NewPassword = MD5Utils.Encrypt(dto.NewPassword, "");
+                dto.NewPassword = MD5Utils.Encrypt(dto.NewPassword);
                 return;
             default:
                 return;
@@ -209,16 +211,17 @@ public class UserService : BaseService<User, UserDto>
         return false;
     }
 
-    private async Task<UserBaseInfoDto> GetUserBaseInfoByEmail(string email, Website website)
+    private async Task<UserBaseInfoDto?> GetUserBaseInfoByEmail(string email, Website website)
     {
         var dbSet = InitialDbContext(website);
-        return await dbSet
+        var list = await dbSet
             .Where(it => it.Email == email)
             .Select(it => new UserBaseInfoDto()
             {
                 Id = it.Id,
                 Email = it.Email
-            }).FirstAsync();
+            }).Take(1).ToListAsync();
+        return list.Count == 0 ? null : list[0];
     }
 
     private async Task<UserBaseInfoDto> GetUserBaseInfoById(int id, Website website)

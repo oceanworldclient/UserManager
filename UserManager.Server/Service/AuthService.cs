@@ -1,9 +1,13 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using UserManager.Server.Entity;
+using UserManager.Server.Utils;
 using UserManager.Shared.Request;
+using UserManager.Shared.Response;
 
 namespace UserManager.Server.Service;
 
@@ -53,7 +57,7 @@ public sealed class AuthService
     {
         var claims = new List<Claim>
         {
-            new (ClaimTypes.Name, _user!.UserName),
+            new(ClaimTypes.Name, _user!.UserName),
             new(JwtRegisteredClaimNames.Email, _user.Email),
         };
         var roles = await _userManager.GetRolesAsync(_user);
@@ -66,12 +70,86 @@ public sealed class AuthService
         var jwtSettings = _configuration.GetSection("JwtConfig");
         var tokenOptions = new JwtSecurityToken
         (
-            issuer: jwtSettings["validIssuer"],
-            audience: jwtSettings["validAudience"],
+            issuer: jwtSettings["ValidIssuer"],
+            audience: jwtSettings["ValidAudience"],
             claims: claims,
-            expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings["expiresIn"])),
+            expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings["ExpiresIn"])),
             signingCredentials: signingCredentials
         );
         return tokenOptions;
+    }
+
+    public string GenerateRefreshToken()
+    {
+        var refreshToken = new RefreshToken()
+        {
+            Token = RandomString(),
+            Timestamp = DateTime.Now.AddHours(16).Timestamp(),
+            UserEmail = _user!.Email
+        };
+        var result = JsonSerializer.Serialize(refreshToken).Encrypt();
+        return result + "." + refreshToken.Timestamp;
+    }
+
+    public async Task<TokenDto> FetchToken(string refreshToken, string accessToken)
+    {
+        var refresh = JsonSerializer.Deserialize<RefreshToken>(refreshToken.Decrypt());
+        if (refresh == null) return new TokenDto();
+        var claimsPrincipal = GetPrincipalFromExpiredToken(accessToken);
+        var claims = claimsPrincipal.Claims;
+        try
+        {
+            var first = claims.First(it => it.Type.Contains("email"));
+            var email = first.Value;
+            if (email != refresh.UserEmail) return new TokenDto();
+            _user = await _userManager.FindByEmailAsync(email);
+            if (refresh.Timestamp - DateTime.Now.Timestamp() < 3600)
+            {
+                refreshToken = GenerateRefreshToken();
+            }
+
+            return new TokenDto() { IsSuccess = true, token = await CreateTokenAsync(), refreshToken = refreshToken };
+        }
+        catch
+        {
+            return new TokenDto();
+        }
+    }
+    
+
+    public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+    {
+        var jwtSettings = _configuration.GetSection("JwtConfig");
+        var tokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateAudience = true,
+            ValidateIssuer = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings["Secret"])),
+            ValidateLifetime = false,
+            ValidIssuer = jwtSettings["ValidIssuer"],
+            ValidAudience = jwtSettings["ValidAudience"],
+        };
+        var tokenHandler = new JwtSecurityTokenHandler();
+        SecurityToken securityToken;
+        var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+        var jwtSecurityToken = securityToken as JwtSecurityToken;
+        if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
+                StringComparison.InvariantCultureIgnoreCase))
+        {
+            throw new SecurityTokenException("Invalid token");
+        }
+
+        return principal;
+    }
+
+    private static string RandomString()
+    {
+        var random = new Random();
+        var length = random.Next(16, 32);
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        return new string(Enumerable.Repeat(chars, length)
+            .Select(x => x[random.Next(x.Length)]).ToArray());
     }
 }

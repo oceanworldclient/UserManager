@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using UserManager.Server.Entity;
 using UserManager.Server.Model;
 
 namespace UserManager.Server.EntityFramework;

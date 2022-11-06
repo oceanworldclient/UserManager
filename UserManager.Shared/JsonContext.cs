@@ -11,6 +11,7 @@ namespace UserManager.Shared;
 [JsonSerializable(typeof(BaseResult))]
 [JsonSerializable(typeof(LoginResult))]
 [JsonSerializable(typeof(RegisterResult))]
+[JsonSerializable(typeof(TokenDto))]
 public partial class JsonContext: JsonSerializerContext
 {
     

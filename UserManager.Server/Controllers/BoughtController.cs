@@ -51,5 +51,10 @@ public class BoughtController : ControllerBase
     {
         return Ok(await BoughtService.CloseRenew(closeRenewDto));
     }
+    
+    public async Task<ActionResult<BaseResult>> RestoreBought([FromBody] RestoreBoughtDto restoreBoughtDto)
+    {
+        return Ok(await BoughtService.RestoreBought(restoreBoughtDto));
+    }
 
 }

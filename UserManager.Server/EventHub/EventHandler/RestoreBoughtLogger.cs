@@ -8,14 +8,14 @@ using UserManager.Shared;
 
 namespace UserManager.Server.EventHub.EventHandler;
 
-public class BuyShopLogger : AbsentEventHandler<BuyShopEvent>
+public class RestoreBoughtLogger: AbsentEventHandler<RestoreBoughtEvent>
 {
-    public BuyShopLogger()
+    public RestoreBoughtLogger()
     {
-        EventCenter.Instance.Register(typeof(BuyShopEvent), this);
+        EventCenter.Instance.Register(typeof(RestoreBoughtEvent), this);
     }
 
-    public override async void Handle(BuyShopEvent e)
+    public override async void Handle(RestoreBoughtEvent e)
     {
         var payload = e.Payload;
         var content = $"套餐: {payload.Shop!.Name}" + GetDiff(payload.BeforeBought, payload.AfterBought);
@@ -37,19 +37,12 @@ public class BuyShopLogger : AbsentEventHandler<BuyShopEvent>
         var sb = new StringBuilder();
         sb.Append('\n')
             .Append($"等级: {before.Class} → {after.Class}").Append('\n')
-            .Append($"余额: {before.Money} → {after.Money}, diff = {after.Money - before.Money}").Append('\n')
             .Append($"等级时间: {before.ClassExpireStr} → {after.ClassExpireStr}, diff = {after.ClassExpire.CalDiffDays(before.ClassExpire)}天\n")
             .Append($"流量: {before.TotalInGb}GB → {after.TotalInGb}GB");
-        if (before.GroupExpireStr != after.GroupExpireStr || before.NodeGroup != after.NodeGroup)
-        {
-            sb.Append('\n').Append($"分组: {before.NodeGroup} → {after.NodeGroup}").Append('\n')
-                .Append($"分组时间: {before.GroupExpireStr} → {after.GroupExpireStr}, diff = {after.GroupExpire.CalDiffDays(before.GroupExpire)}天");
-        }
-
         return sb.ToString();
     }
 
-    ~BuyShopLogger()
+    ~RestoreBoughtLogger()
     {
         EventCenter.Instance.UnRegister(typeof(BuyShopEvent), this);
     }

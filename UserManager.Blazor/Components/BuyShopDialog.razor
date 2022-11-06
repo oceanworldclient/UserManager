@@ -1,4 +1,5 @@
 ﻿@using BlazorComponent
+@using UserManager.Blazor.Client
 @inject ManageClient ManageClient
 
 <MDialog @bind-Value="_open" Scrollable="true" MaxWidth="500">
@@ -21,7 +22,9 @@
                          OnSelectedItemUpdate="item => _selectedShopDto = item"/>
                 <MSpacer/>
                 <MButton Color="primary" OnClick="Buy">购买</MButton>
-                <MButton Color="primary" OnClick="Upgrade">升级套餐</MButton>
+                <MButton Color="primary" OnClick="RestoreBought">处理刚买套餐无流量</MButton>
+                <MButton Color="primary" OnClick="Upgrade">变更套餐</MButton>
+                <MButton Color="primary" OnClick="QueryGap">查询差价</MButton>
             </MCardText>
             <MCardActions>
                 <MSpacer/>
@@ -72,7 +75,7 @@
             _snackbar?.Show("所选套餐为空");
             return;
         }
-        var res = await ManageClient.BuyShop(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email});
+        var res = await ManageClient.BuyShop(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email });
         if (res.IsSuccess)
         {
             _open = false;
@@ -82,7 +85,7 @@
         }
         _snackbar?.Show("购买失败: " + res.Message);
     }
-    
+
     private async void Upgrade()
     {
         if (_selectedShopDto == null)
@@ -90,7 +93,7 @@
             _snackbar?.Show("所选套餐为空");
             return;
         }
-        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email});
+        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email });
         if (res.IsSuccess)
         {
             _open = false;
@@ -99,6 +102,35 @@
             return;
         }
         _snackbar?.Show("购买失败: " + res.Message);
+    }
+
+    private async void QueryGap()
+    {
+        if (_selectedShopDto == null)
+        {
+            _snackbar?.Show("所选套餐为空");
+            return;
+        }
+        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email, IsQueryGap = true });
+        if (res.IsSuccess)
+        {
+            _callback?.Invoke(res.Message!, _userDto, true);
+            return;
+        }
+        _snackbar?.Show("查询失败: " + res.Message);
+    }
+
+    private async void RestoreBought()
+    {
+        var res = await ManageClient.RestoreBought(new RestoreBoughtDto() { UserEmail = _userDto!.Email, UserId = _userDto!.Id, Website = _userDto.Website });
+        if (res.IsSuccess)
+        {
+            _open = false;
+            StateHasChanged();
+            _callback?.Invoke("操作成功", _userDto, true);
+            return;
+        }
+        _snackbar?.Show("操作失败: " + res.Message);
     }
 
 

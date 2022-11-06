@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using UserManager.Server.Constant;
+using UserManager.Server.Entity;
 using UserManager.Server.EventHub.Event;
 using UserManager.Server.Model;
 

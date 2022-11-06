@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Text;
 using UserManager.Server.Constant;
+using UserManager.Server.Entity;
 using UserManager.Server.EventHub.Event;
 using UserManager.Server.Model;
 using UserManager.Server.Utils;
@@ -33,12 +34,13 @@ public class ModifyUserLogger : AbsentEventHandler<ModifyUserEvent>
             .Append($"操作: 更新用户信息\n")
             .Append($"用户: {baseLog.UserEmail}\n");
 
-        if (Math.Abs(oldDto.ClassExpire.Timestamp() - newDto.ClassExpire.Timestamp()) > 3600)
+        if (Math.Abs(oldDto.ClassExpire.Timestamp() - newDto.ClassExpire.Timestamp()) > 3600 * 24)
         {
             var log = CreateNewLogFromPattern(baseLog,
                 oldDto.ClassExpireStr,
                 newDto.ClassExpireStr, OperationLogType.ModifyClassExpire, sb);
             operationLogs.Add(log);
+            sb.Append($", diff = {newDto.ClassExpire.CalDiffDays(oldDto.ClassExpire)}天");
         }
 
         if (oldDto.Class != newDto.Class)
@@ -65,6 +67,7 @@ public class ModifyUserLogger : AbsentEventHandler<ModifyUserEvent>
                 oldDto.Money.ToString(CultureInfo.CreateSpecificCulture("zh-cn")),
                 newDto.Money.ToString(CultureInfo.CreateSpecificCulture("zh-cn")),
                 OperationLogType.ModifyMoney, sb);
+            sb.Append($", diff = {Math.Round(newDto.Money - oldDto.Money)}");
             operationLogs.Add(log);
         }
 
@@ -104,7 +107,7 @@ public class ModifyUserLogger : AbsentEventHandler<ModifyUserEvent>
             operationLogs.Add(log);
         }
 
-        if (Math.Abs(oldDto.GroupExpire.Timestamp() - newDto.GroupExpire.Timestamp()) > 3600)
+        if (Math.Abs(oldDto.GroupExpire.Timestamp() - newDto.GroupExpire.Timestamp()) > 3600 * 24)
         {
             var log = CreateNewLogFromPattern(baseLog,
                 oldDto.GroupExpireStr,

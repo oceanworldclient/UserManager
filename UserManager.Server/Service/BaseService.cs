@@ -22,7 +22,7 @@ public class BaseService<TE, TD> : IDisposable, IService<TE, TD> where TE : clas
         if (DbContext != null) return DbContext.Set<TE>();
         var option = new DbContextOptionsBuilder<SSPanelDbContext>()
             .UseMySQL(ServiceConfig.Instance.GetConnectionString(website.ToString()))
-            .LogTo(Console.WriteLine).EnableSensitiveDataLogging()
+            // .LogTo(Console.WriteLine).EnableSensitiveDataLogging()
             .Options;
         DbContext = new SSPanelDbContext(option);
         return DbContext.Set<TE>();

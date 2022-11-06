@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace UserManager.Server.Model;
+namespace UserManager.Server.Entity;
 
 [Table("OperationLog")]
 public class OperationLog

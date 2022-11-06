@@ -17,15 +17,23 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login(LoginModel login)
+    public async Task<IActionResult> Login([FromBody] LoginModel login)
     {
         var result = await AuthService.ValidateUserAsync(login);
-        if (result) return Ok(new LoginResult() { Token = await AuthService.CreateTokenAsync(), Successful = true });
-        return Ok(new LoginResult() { Successful = false });
+        if (!result) return Ok(new LoginResult() { Successful = false });
+        var token = await AuthService.CreateTokenAsync();
+        var refreshToken = AuthService.GenerateRefreshToken();
+        return Ok(new LoginResult() { Token = token, RefreshToken = refreshToken, Successful = true });
     }
 
     [HttpPost]
-    public async Task<IActionResult> Register(RegisterModel model)
+    public async Task<IActionResult> RefreshToken([FromBody] FetchTokenDto fetchTokenDto)
+    {
+        return Ok(await AuthService.FetchToken(fetchTokenDto.refreshToken, fetchTokenDto.token));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Register([FromBody] RegisterModel model)
     {
         var result = await AuthService.RegisterUserAsync(model);
         if (result.Succeeded) return Ok(new RegisterResult() { Successful = true });

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using UserManager.Server.Entity;
 using UserManager.Server.EntityFramework;
 using UserManager.Server.Model;
 

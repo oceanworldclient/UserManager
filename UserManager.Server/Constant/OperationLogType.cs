@@ -25,6 +25,8 @@ public class OperationLogType
 
     public const string BuyShop = "购买套餐";
 
+    public const string RestoreBought = "处理刚买无流量";
+
     public const string Upgrade = "升级套餐";
 
     public const string DeleteBought = "删除购买记录";

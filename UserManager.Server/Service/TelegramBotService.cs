@@ -1,5 +1,4 @@
 ﻿using UserManager.Server.Model;
-using HostingEnvironmentExtensions = Microsoft.AspNetCore.Hosting.HostingEnvironmentExtensions;
 
 namespace UserManager.Server.Service;
 
@@ -14,12 +13,26 @@ public class TelegramBotService
 
     public async void PostMessage(TgBotMessage msg)
     {
-        await HttpClient.PostAsync(HttpClient.BaseAddress + msg.ToString(), null);
+        try
+        {
+            await HttpClient.PostAsync(HttpClient.BaseAddress + msg.ToString(), null);
+        }
+        catch
+        {
+
+        }
     }
 
     public async void PostMessage(string msg)
     {
-        await HttpClient.PostAsync(HttpClient.BaseAddress + msg, null);
+        try
+        {
+            await HttpClient.PostAsync(HttpClient.BaseAddress + msg, null);
+        }
+        catch
+        {
+
+        }      
     }
     
 }

@@ -7,4 +7,7 @@ public class BuyShopDto : BaseDto
     public string UserEmail { get; set; }
 
     public int UserId { get; set; }
+    
+    public bool IsQueryGap { get; set; }
+    
 }

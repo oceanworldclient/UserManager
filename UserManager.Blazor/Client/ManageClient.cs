@@ -1,15 +1,17 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json.Serialization.Metadata;
-using UserManager.Blazor.State;
+using UserManager.Blazor.Services;
 using UserManager.Shared;
 using UserManager.Shared.Request;
 using UserManager.Shared.Response;
 
-namespace UserManager.Blazor;
+namespace UserManager.Blazor.Client;
 
 public class ManageClient
 {
     private HttpClient HttpClient { get; }
+
+    private IAuthService AuthService { get; }
 
     private static string UserController => "User";
 
@@ -17,23 +19,11 @@ public class ManageClient
 
     private static string BoughtController => "Bought";
 
-    private static string AuthController => "Auth";
-
-    // private static readonly Dictionary<string, JsonTypeInfo> JsonTypeInfos = new()
-    // {
-    //     { nameof(UserDto), JsonContext.Default.UserDto },
-    //     { nameof(ShopDto), JsonContext.Default.ShopDto },
-    //     { nameof(BoughtDto), JsonContext.Default.BoughtDto },
-    //     { "list" + nameof(UserDto), JsonContext.Default.ListUserDto }
-    // };
-
-    public ManageClient(HttpClient client, AuthState authState)
+    public ManageClient(HttpClient client, IAuthService authService)
     {
         HttpClient = client;
-        HttpClient.DefaultRequestHeaders.Authorization = authState.Authorization;
-        // AuthState = authState;
+        AuthService = authService;
     }
-    
 
     public async Task<IList<UserDto>> FindUser(QueryUserDto userDto)
     {
@@ -51,16 +41,16 @@ public class ManageClient
 
     public async Task<bool> ModifyPassword(ModifyPasswordDto dto)
     {
-        var resp = await PostAsJson<BaseResult>($"{UserController}/ModifyPassword", dto,
+        var resp = await PostAsJson($"{UserController}/ModifyPassword", dto,
             JsonContext.Default.BaseResult);
         return resp?.IsSuccess ?? false;
     }
-    
-    public async Task<bool> ModifyRefBy(ModifyRefByDto dto)
+
+    public async Task<BaseResult> ModifyRefBy(ModifyRefByDto dto)
     {
-        var resp = await PostAsJson<BaseResult>($"{UserController}/ModifyRefBy", dto,
+        var resp = await PostAsJson($"{UserController}/ModifyRefBy", dto,
             JsonContext.Default.BaseResult);
-        return resp?.IsSuccess ?? false;
+        return resp ?? new BaseResult() { IsSuccess = false, Message = "后台异常" };
     }
 
     public async Task<IList<BoughtDto>> FindBoughtByUser(int userId)
@@ -73,23 +63,10 @@ public class ManageClient
     private async Task<T?> PostAsJson<T>(string uri, object dto, JsonTypeInfo<T> jsonTypeInfo)
         where T : class, new()
     {
+        HttpClient.DefaultRequestHeaders.Authorization = await ((AuthService)AuthService).GetAuthHeader();
         var resp = await HttpClient.PostAsJsonAsync(uri, dto);
         if (!resp.IsSuccessStatusCode) return null;
-        var x = resp.Content.ReadAsStringAsync();
         return await resp.Content.ReadFromJsonAsync(jsonTypeInfo);
-    }
-
-    public async Task<LoginResult> Login(LoginModel loginModel)
-    {
-        var res = await PostAsJson($"{AuthController}/Login", loginModel, JsonContext.Default.LoginResult);
-        return res ?? new LoginResult() { Successful = false };
-    }
-
-    public async Task<RegisterResult> Register(RegisterModel registerModel)
-    {
-        var res = await PostAsJson($"{AuthController}/Register", registerModel,
-            JsonContext.Default.RegisterResult);
-        return res ?? new RegisterResult() { Successful = false };
     }
 
     public async Task<bool> DeleteBought(DeleteBoughtDto dto)
@@ -106,24 +83,32 @@ public class ManageClient
 
     public async Task<IList<BoughtDto>> QueryBoughtByUserId(QueryBoughtDto queryBoughtDto)
     {
-        var res = await PostAsJson($"{BoughtController}/QueryBoughtByUserId", queryBoughtDto, JsonContext.Default.ListBoughtDto);
+        var res = await PostAsJson($"{BoughtController}/QueryBoughtByUserId", queryBoughtDto,
+            JsonContext.Default.ListBoughtDto);
         return res ?? new List<BoughtDto>();
     }
-    
+
     public async Task<BaseResult> BuyShop(BuyShopDto buyShopDto)
     {
-        return (await PostAsJson($"{BoughtController}/BuyShop", buyShopDto, JsonContext.Default.BaseResult))??new BaseResult(){IsSuccess = false, Message = "后端服务异常"};
+        return (await PostAsJson($"{BoughtController}/BuyShop", buyShopDto, JsonContext.Default.BaseResult)) ??
+               new BaseResult() { IsSuccess = false, Message = "后端服务异常" };
     }
-    
+
     public async Task<BaseResult> Upgrade(BuyShopDto buyShopDto)
     {
-        return (await PostAsJson($"{BoughtController}/Upgrade", buyShopDto, JsonContext.Default.BaseResult))??new BaseResult(){IsSuccess = false, Message = "后端服务异常"};
+        return (await PostAsJson($"{BoughtController}/Upgrade", buyShopDto, JsonContext.Default.BaseResult)) ??
+               new BaseResult() { IsSuccess = false, Message = "后端服务异常" };
     }
-    
+
     public async Task<IList<ShopDto>> QueryShop(QueryShopDto queryShopDto)
     {
         var res = await PostAsJson($"{ShopController}/QueryShop", queryShopDto, JsonContext.Default.ListShopDto);
         return res ?? new List<ShopDto>();
     }
-    
+
+    public async Task<BaseResult> RestoreBought(RestoreBoughtDto restoreBoughtDto)
+    {
+        return (await PostAsJson($"{BoughtController}/RestoreBought", restoreBoughtDto,
+            JsonContext.Default.BaseResult)) ?? new BaseResult() { IsSuccess = false, Message = "后端服务异常" };
+    }
 }
