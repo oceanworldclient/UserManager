@@ -34,13 +34,13 @@
 
 @code {
 
-    private StringNumber _selectedItem = "海洋";
+    private StringNumber _selectedItem = "";
 
     private readonly IEnumerable<NavItem> _navItems = new[]
     {
         new NavItem() { Href = "/UserInfo/0", Title = "世界旅行" },
-        new NavItem() { Href = "/UserInfo/2", Title = "海洋" },
-        new NavItem() { Href = "/UserInfo/1", Title = "斑马" }
+        new NavItem() { Href = "/UserInfo/1", Title = "海洋" },
+        new NavItem() { Href = "/UserInfo/2", Title = "斑马" }
     };
     
     private async Task HandleLogout()

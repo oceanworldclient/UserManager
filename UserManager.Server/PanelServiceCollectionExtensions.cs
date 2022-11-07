@@ -17,6 +17,7 @@ public static class PanelServiceCollectionExtensions
         services.AddScoped<BoughtService>();
         services.AddScoped<UserService>();
         services.AddScoped<ShopService>();
+        services.AddScoped<UserRoleService>();
         services.AddScoped<OperationLogService>();
         services.AddSingleton(new BuyShopLogger());
         services.AddSingleton(new CloseRenewLogger());

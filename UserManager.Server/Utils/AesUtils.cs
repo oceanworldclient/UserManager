@@ -6,8 +6,15 @@ namespace UserManager.Server.Utils;
 
 public static class AesUtils
 {
-    private static string KeyStr { get; } = "A?d?!<(A?><KD:LK";
-    private static string IvStr { get; } = "A?d?!<(A?><KD:LK";
+    private static string KeyStr { get; set; } = "A?d?!<(A?><KD:LK";
+    private static string IvStr { get; set; } = "A?d?!<(A?><KD:LK";
+
+    public static void Set(string key)
+    {
+        Console.WriteLine("key:" + key);
+        KeyStr = key;
+        IvStr = key;
+    }
 
     public static string Encrypt(this string plainText)
     {

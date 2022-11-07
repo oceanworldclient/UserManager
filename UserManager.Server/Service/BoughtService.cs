@@ -349,8 +349,11 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             var user = users[0];
             if (user.Class != 0 || user.TransferEnable > 1000)
                 return new BaseResult() { IsSuccess = false, Message = "请核对用户等级和流量信息" };
+            if (user.ClassExpire <= DateTime.Now) return new BaseResult() { IsSuccess = false, Message = "用户等级已过期" };
             var lastBought = await FindLastBought(user.Id);
             if (lastBought == null) return new BaseResult() { IsSuccess = false, Message = "没有购买套餐" };
+            if (lastBought.Datetime < DateTime.Now.Timestamp() - 3 * 4 * 3600)
+                return new BaseResult() { IsSuccess = false, Message = "套餐购买时间早于3天" };
             var shop = await DbContext!.Set<Shop>().FindAsync(lastBought.Shopid);
             var shopContent = JsonSerializer.Deserialize<ShopContent>(shop!.Content);
             var saveUser = new User()
