@@ -19,7 +19,7 @@ builder.Services.AddHttpClient<AuthClient>(client =>
 {
     client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 });
-
+builder.Logging.SetMinimumLevel(LogLevel.None);
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
