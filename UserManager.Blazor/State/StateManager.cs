@@ -4,7 +4,7 @@ namespace UserManager.Blazor.State;
 
 public class StateManager
 {
-    private List<PanelState> _states = new()
+    private readonly List<PanelState> _states = new()
     {
         new PanelState() { Website = Website.World },
         new PanelState() { Website = Website.Ocean },

@@ -75,7 +75,7 @@
             _snackbar?.Show("所选套餐为空");
             return;
         }
-        var res = await ManageClient.BuyShop(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email });
+        var res = await ManageClient.BuyShop(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email, Website = _userDto.Website});
         if (res.IsSuccess)
         {
             _open = false;
@@ -93,7 +93,7 @@
             _snackbar?.Show("所选套餐为空");
             return;
         }
-        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email });
+        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email, Website = _userDto.Website});
         if (res.IsSuccess)
         {
             _open = false;
@@ -111,7 +111,7 @@
             _snackbar?.Show("所选套餐为空");
             return;
         }
-        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email, IsQueryGap = true });
+        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email, IsQueryGap = true, Website = _userDto.Website});
         if (res.IsSuccess)
         {
             _callback?.Invoke(res.Message!, _userDto, true);

@@ -11,7 +11,6 @@ public static class AesUtils
 
     public static void Set(string key)
     {
-        Console.WriteLine("key:" + key);
         KeyStr = key;
         IvStr = key;
     }

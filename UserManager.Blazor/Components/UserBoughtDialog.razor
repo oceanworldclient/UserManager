@@ -135,7 +135,7 @@
         if (res)
         {
             _snackbar?.Show("关闭成功");
-            _boughtDtos = await ManageClient.QueryBoughtByUserId(new QueryBoughtDto() { UserId = _userDto.Id });
+            _boughtDtos = await ManageClient.QueryBoughtByUserId(new QueryBoughtDto() { UserId = _userDto.Id, Website = _userDto.Website});
         }
         else
         {
@@ -158,7 +158,7 @@
         if (res)
         {
             _snackbar?.Show("删除成功");
-            _boughtDtos = await ManageClient.QueryBoughtByUserId(new QueryBoughtDto() { UserId = _userDto.Id });
+            _boughtDtos = await ManageClient.QueryBoughtByUserId(new QueryBoughtDto() { UserId = _userDto.Id, Website = _userDto.Website});
         }
         else
         {

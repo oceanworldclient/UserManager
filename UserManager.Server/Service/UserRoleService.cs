@@ -29,17 +29,13 @@ public class UserRoleService
 
     private async Task<List<IdentityUserDto>> HandlerRole(List<IdentityUserDto> userDtos)
     {
-        var hashSet = userDtos.Select(it=>it.Id).ToHashSet();
-        var listAsync = await UserDbContext.UserRoles.Where(it=>hashSet.Contains(it.UserId)).ToListAsync();
-        var roleSet = listAsync.Select(it=>it.RoleId).ToHashSet();
+        var hashSet = userDtos.Select(it => it.Id).ToHashSet();
+        var listAsync = await UserDbContext.UserRoles.Where(it => hashSet.Contains(it.UserId)).ToListAsync();
+        var roleSet = listAsync.Select(it => it.RoleId).ToHashSet();
         var roleDict = await UserDbContext.Roles.Where(it => roleSet.Contains(it.Id)).ToDictionaryAsync(it => it.Id);
-        var dic = new Dictionary<string, string>();
-        foreach (var identityUserRole in listAsync)
-        {
-            dic.Add(identityUserRole.UserId, roleDict[identityUserRole.RoleId].Name);
-        }
+        var dic = listAsync.ToDictionary(identityUserRole => identityUserRole.UserId, identityUserRole => roleDict[identityUserRole.RoleId].Name);
 
-        foreach (var user in userDtos)
+        foreach (var user in userDtos.Where(user => dic.ContainsKey(user.Id)))
         {
             user.Role = dic[user.Id];
         }
@@ -49,7 +45,7 @@ public class UserRoleService
 
     public async Task<List<IdentityUserDto>> FindUserByEmail(QueryIdentityUserDto dto)
     {
-        return await UserDbContext.Users.Where(it=>it.Email==dto.Email).Select(it => new IdentityUserDto()
+        return await UserDbContext.Users.Where(it => it.Email == dto.Email).Select(it => new IdentityUserDto()
         {
             UserName = it.UserName,
             Email = it.Email,
@@ -77,10 +73,10 @@ public class UserRoleService
         {
             UserDbContext.UserRoles.Remove(listAsync[0]);
         }
+
         tmp.UserId = user.Id;
         tmp.RoleId = role.Id;
         await UserDbContext.AddAsync(tmp);
         return await UserDbContext.SaveChangesAsync() >= 1;
     }
-
 }

@@ -15,9 +15,12 @@ public class BoughtService : BaseService<Bought, BoughtDto>
 {
     private ShopService ShopService { get; }
 
-    public BoughtService(IMapper mapper, ShopService shopService) : base(mapper)
+    private ILogger<BoughtService> Log { get; }
+
+    public BoughtService(IMapper mapper, ShopService shopService, ILogger<BoughtService> log) : base(mapper)
     {
         ShopService = shopService;
+        Log = log;
     }
 
     public async Task<IList<BoughtDto>> GetByUserId(int userId, Website website)
@@ -62,7 +65,11 @@ public class BoughtService : BaseService<Bought, BoughtDto>
     public async Task<BaseResult> BuyShop(BuyShopDto buyShopDto)
     {
         if (!await Verify(buyShopDto.UserEmail, buyShopDto.UserId, buyShopDto.Website))
+        {
+            Log.LogWarning("购买套餐入参 buyShopDto={@Dto}", buyShopDto);
             return new BaseResult() { Message = "参数不合法" };
+        }
+            
         InitialDbContext(buyShopDto.Website);
         try
         {
@@ -126,8 +133,9 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             });
             return new BaseResult() { IsSuccess = true, Message = "购买成功" };
         }
-        catch
+        catch(Exception e)
         {
+            Serilog.Log.Fatal(e, "[BoughtService]购买套餐异常");
             return new BaseResult() { Message = "购买失败" };
         }
     }
@@ -216,8 +224,9 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             });
             return new BaseResult() { IsSuccess = true, Message = "购买成功" };
         }
-        catch
+        catch(Exception e)
         {
+            Serilog.Log.Fatal(e, "[BoughtService]变更套餐异常");
             return new BaseResult() { Message = "购买失败" };
         }
     }
@@ -231,21 +240,24 @@ public class BoughtService : BaseService<Bought, BoughtDto>
                 .Where(it => it.Id == userId)
                 .Select(it => new UserBaseInfoDto() { Id = it.Id, Email = it.Email, Website = website })
                 .FirstAsync();
-            if (email == userBaseInfo.Email) return true;
+            if (email.Trim() == userBaseInfo.Email.Trim()) return true;
+            Log.LogWarning("通过id查找到的用户{@User}, 入参：email={@Email} userid={@UserId}", userBaseInfo, email, userId);
             var op = AppHttpContext.Current.User;
             EventCenter.Instance.Publish(new IllegalOperationEvent()
             {
                 Operator = op?.Identity?.Name ?? "",
+                Website = website,
                 Payload = new IllegalOperationPayload()
                 {
                     UserBaseInfo = userBaseInfo,
-                    Content = "企图修改提交Id参数购买套餐"
+                    Content = $"企图修改提交Id参数购买套餐: UserId={userId}, UserEmail={email}"
                 }
             });
             return false;
         }
-        catch
+        catch(Exception e)
         {
+            Serilog.Log.Fatal(e, "[BoughtService]验证异常");
             return false;
         }
     }
@@ -268,8 +280,9 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             });
             return false;
         }
-        catch
+        catch(Exception e)
         {
+            Serilog.Log.Fatal(e, "[BoughtService]验证异常");
             return false;
         }
     }
@@ -297,8 +310,9 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             });
             return new BaseResult() { IsSuccess = true };
         }
-        catch
+        catch(Exception e)
         {
+            Serilog.Log.Fatal(e, "[BoughtService]删除购买记录异常");
             return new BaseResult() { IsSuccess = false, Message = "删除失败" };
         }
     }
@@ -326,8 +340,9 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             });
             return new BaseResult() { IsSuccess = true };
         }
-        catch
+        catch(Exception e)
         {
+            Serilog.Log.Fatal(e, "[BoughtService]关闭续费异常");
             return new BaseResult() { IsSuccess = false, Message = "操作失败" };
         }
     }
@@ -383,8 +398,9 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             });
             return new BaseResult() { IsSuccess = true };
         }
-        catch
+        catch(Exception e)
         {
+            Serilog.Log.Fatal(e, "[BoughtService]恢复套餐异常");
             return new BaseResult() { IsSuccess = false, Message = "操作失败" };
         }
     }

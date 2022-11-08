@@ -1,6 +1,7 @@
 ﻿@using UserManager.Blazor.State
 @using UserManager.Blazor.Client
 @inject ManageClient ManageClient
+@inject StateManager StateManager
 
 
 <MContainer>
@@ -98,8 +99,11 @@
 
 @code {
 
-    [Parameter]
-    public PanelState PanelState { get; set; } = new();
+    // [Parameter]
+    private PanelState PanelState => StateManager.GetState(WebId);
+
+    [CascadingParameter]
+    public int WebId { get; set; }
 
     private int _itemsPerPage = 8;
 
@@ -118,6 +122,7 @@
     private BuyShopDialog? _buyShopDialog;
 
     private ModifyRefByDialog? _modifyRefByDialog;
+    
 
     private static IList<SelectItem> Keys => new List<SelectItem>()
     {
@@ -128,32 +133,27 @@
 
     private void ModifyPassword(UserDto userDto)
     {
-        userDto.Website = PanelState.Website;
         _passwordDialog?.Show(userDto, SnackInfo);
     }
 
     private void ModifyRefBy(UserDto userDto)
     {
-        userDto.Website = PanelState.Website;
         _modifyRefByDialog?.Show(userDto, SnackInfo);
     }
 
     private void EditUser(UserDto userDto)
     {
-        userDto.Website = PanelState.Website;
         _dialog?.Show(userDto, SnackInfo);
     }
 
     private async void OpenBought(UserDto userDto)
     {
-        userDto.Website = PanelState.Website;
         var list = await ManageClient.QueryBoughtByUserId(new QueryBoughtDto() { UserId = userDto.Id, Website = userDto.Website });
         _userBoughtDialog?.Show(userDto, list);
     }
 
     private async void BuyShop(UserDto userDto)
     {
-        userDto.Website = PanelState.Website;
         var list = await ManageClient.QueryShop(new QueryShopDto() { Website = userDto.Website });
         _buyShopDialog?.Show(userDto, list, SnackInfo);
     }
@@ -163,7 +163,7 @@
         _snackbar?.Show(message);
         if (refresh)
         {
-            PanelState.Users = await ManageClient.FindUser(new QueryUserDto() { Email = userDto.Email, Type = QueryUserDto.QueryType.Email });
+            PanelState.Users = await ManageClient.FindUser(new QueryUserDto() { Email = userDto.Email, Type = QueryUserDto.QueryType.Email, Website = userDto.Website});
             StateHasChanged();
         }
     }
