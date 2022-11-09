@@ -93,7 +93,7 @@ public sealed class AuthService
 
     public async Task<TokenDto> FetchToken(string refreshToken, string accessToken)
     {
-        var refresh = JsonSerializer.Deserialize<RefreshToken>(refreshToken.Decrypt());
+        var refresh = JsonSerializer.Deserialize<RefreshToken>(refreshToken.Split(".")[0].Decrypt());
         if (refresh == null) return new TokenDto();
         var claimsPrincipal = GetPrincipalFromExpiredToken(accessToken);
         var claims = claimsPrincipal.Claims;

@@ -84,6 +84,8 @@ public class BoughtService : BaseService<Bought, BoughtDto>
                 return new BaseResult() { Message = "用户当前套餐等级与购买套餐等级不一致" };
 
             var before = Mapper.Map<UserDto>(user);
+            Log.LogInformation("购买套餐前：{@Before}", before);
+            Log.LogInformation("套餐内容：{@Content}", shopContent);
             userDbSet.Attach(user);
             user.Money -= shop.Price;
             if (user.Class == 0)
@@ -121,6 +123,7 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             await DbContext.Set<Bought>().AddAsync(bought);
             await DbContext.SaveChangesAsync();
             var after = Mapper.Map<UserDto>(user);
+            Log.LogInformation("购买套餐后：{@After}", after);
             EventCenter.Instance.Publish(new BuyShopEvent()
             {
                 Website = buyShopDto.Website,
@@ -186,6 +189,8 @@ public class BoughtService : BaseService<Bought, BoughtDto>
 
 
             var before = Mapper.Map<UserDto>(user);
+            Log.LogInformation("购买套餐前：{@Before}", before);
+            Log.LogInformation("套餐内容：{@Content}", shopContent);
             userDbSet.Attach(user);
             user.Money = tmpMoney - shop.Price;
 
@@ -211,6 +216,7 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             await DbContext.Set<Bought>().AddAsync(bought);
             await DbContext.SaveChangesAsync();
             var after = Mapper.Map<UserDto>(user);
+            Log.LogInformation("购买套餐后：{@After}", after);
             EventCenter.Instance.Publish(new UpgradeShopEvent()
             {
                 Website = buyShopDto.Website,
