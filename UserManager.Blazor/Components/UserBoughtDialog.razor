@@ -55,7 +55,7 @@
         <MCardActions>
             <MSpacer/>
             <MButton Text="true" Color="green" OnClick="() => _confirmDelete = false">取消</MButton>
-            <MButton Text="true" Color="red" OnClick="ConfirmDelete">删除</MButton>
+            <MButton Loading="_loading" Text="true" Color="red" OnClick="ConfirmDelete">删除</MButton>
         </MCardActions>
     </MCard>
 </MDialog>
@@ -72,7 +72,7 @@
         <MCardActions>
             <MSpacer/>
             <MButton Text="true" Color="green" OnClick="() => _closeRenew = false">取消</MButton>
-            <MButton Text="true" Color="red" OnClick="ConfirmCloseRenew">关闭</MButton>
+            <MButton Loading="_loading" Text="true" Color="red" OnClick="ConfirmCloseRenew">关闭</MButton>
         </MCardActions>
     </MCard>
 </MDialog>
@@ -82,6 +82,8 @@
 @code {
 
     private bool _open;
+
+    private bool _loading;
 
     private bool _closeRenew;
 
@@ -131,6 +133,7 @@
             UserId = _userDto.Id,
             UserEmail = _userDto.Email
         };
+        _loading = true;
         var res = await ManageClient.CloseRenew(dto);
         if (res)
         {
@@ -141,6 +144,7 @@
         {
             _snackbar?.Show("关闭失败");
         }
+        _loading = false;
         _closeRenew = false;
         StateHasChanged();
     }
@@ -154,6 +158,7 @@
             UserId = _userDto.Id,
             UserEmail = _userDto.Email
         };
+        _loading = true;
         var res = await ManageClient.DeleteBought(deleteBoughtDto);
         if (res)
         {
@@ -165,6 +170,7 @@
             _snackbar?.Show("删除失败");
         }
         _confirmDelete = false;
+        _loading = false;
         StateHasChanged();
     }
 

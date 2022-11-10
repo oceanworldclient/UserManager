@@ -21,10 +21,10 @@
                          TItem="ShopDto"
                          OnSelectedItemUpdate="item => _selectedShopDto = item"/>
                 <MSpacer/>
-                <MButton Color="primary" OnClick="Buy">购买</MButton>
-                <MButton Color="primary" OnClick="RestoreBought">处理刚买套餐无流量</MButton>
-                <MButton Color="primary" OnClick="Upgrade">变更套餐</MButton>
-                <MButton Color="primary" OnClick="QueryGap">查询差价</MButton>
+                <MButton Loading="_loadingBuy" Color="primary" OnClick="Buy">购买</MButton>
+                <MButton Loading="_loadingRestore" Color="primary" OnClick="RestoreBought">处理刚买套餐无流量</MButton>
+                <MButton Loading="_loadingUpgrade" Color="primary" OnClick="Upgrade">变更套餐</MButton>
+                <MButton Loading="_loadingGap" Color="primary" OnClick="QueryGap">查询差价</MButton>
             </MCardText>
             <MCardActions>
                 <MSpacer/>
@@ -39,6 +39,14 @@
 @code {
 
     private bool _open;
+
+    private bool _loadingBuy;
+
+    private bool _loadingRestore;
+
+    private bool _loadingUpgrade;
+
+    private bool _loadingGap;
 
     private UserDto _userDto;
 
@@ -75,14 +83,19 @@
             _snackbar?.Show("所选套餐为空");
             return;
         }
-        var res = await ManageClient.BuyShop(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email, Website = _userDto.Website});
+
+        _loadingBuy = true;
+        var res = await ManageClient.BuyShop(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email, Website = _userDto.Website });
         if (res.IsSuccess)
         {
             _open = false;
+            _loadingBuy = false;
             StateHasChanged();
             _callback?.Invoke("购买成功", _userDto, true);
             return;
         }
+        _loadingBuy = false;
+        StateHasChanged();
         _snackbar?.Show("购买失败: " + res.Message);
     }
 
@@ -93,14 +106,18 @@
             _snackbar?.Show("所选套餐为空");
             return;
         }
-        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email, Website = _userDto.Website});
+        _loadingUpgrade = true;
+        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email, Website = _userDto.Website });
         if (res.IsSuccess)
         {
             _open = false;
+            _loadingUpgrade = false;
             StateHasChanged();
             _callback?.Invoke("购买成功", _userDto, true);
             return;
         }
+        _loadingUpgrade = false;
+        StateHasChanged();
         _snackbar?.Show("购买失败: " + res.Message);
     }
 
@@ -111,25 +128,34 @@
             _snackbar?.Show("所选套餐为空");
             return;
         }
-        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email, IsQueryGap = true, Website = _userDto.Website});
+        _loadingGap = true;
+        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectedShopDto!.Id, UserId = _userDto.Id, UserEmail = _userDto.Email, IsQueryGap = true, Website = _userDto.Website });
         if (res.IsSuccess)
         {
             _callback?.Invoke(res.Message!, _userDto, true);
+            _loadingGap = false;
+            StateHasChanged();
             return;
         }
+        _loadingGap = false;
+        StateHasChanged();
         _snackbar?.Show("查询失败: " + res.Message);
     }
 
     private async void RestoreBought()
     {
+        _loadingRestore = true;
         var res = await ManageClient.RestoreBought(new RestoreBoughtDto() { UserEmail = _userDto!.Email, UserId = _userDto!.Id, Website = _userDto.Website });
         if (res.IsSuccess)
         {
             _open = false;
+            _loadingRestore = false;
             StateHasChanged();
             _callback?.Invoke("操作成功", _userDto, true);
             return;
         }
+        _loadingRestore = false;
+        StateHasChanged();
         _snackbar?.Show("操作失败: " + res.Message);
     }
 

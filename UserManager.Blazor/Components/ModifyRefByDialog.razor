@@ -18,7 +18,7 @@
             </MCardText>
             <MCardActions>
                 <MButton Color="red darken-1" Text="true" OnClick="@(() => _open = false)">Cancel</MButton>
-                <MButton Color="green darken-1" Text="true" OnClick="Confirm">Save</MButton>
+                <MButton Loading="_loading" Color="green darken-1" Text="true" OnClick="Confirm">Save</MButton>
             </MCardActions>
         </MCard>
     </ChildContent>
@@ -28,6 +28,8 @@
 @code {
 
     private bool _open;
+
+    private bool _loading;
 
     private string _refBy = "";
 
@@ -47,11 +49,13 @@
     {
         if (!string.IsNullOrEmpty(_refBy))
         {
+            _loading = true;
             var request = new ModifyRefByDto() { UserId = _userDto.Id, RefBy = _refBy, Website = _userDto.Website, UserEmail = _userDto.Email};
             var saveUser = await ManageClient.ModifyRefBy(request);
             _callback?.Invoke(saveUser!.IsSuccess ? "修改成功" : saveUser!.Message, _userDto, false);
         }
         _open = false;
+        _loading = false;
         StateHasChanged();
     }
 

@@ -90,6 +90,7 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             user.Money -= shop.Price;
             if (user.Class == 0)
             {
+                before.ClassExpire = DateTime.Now.ToLocalTime();
                 user.ClassExpire = DateTime.Now.ToLocalTime().AddDays(shopContent!.ClassExpire);
                 user.Class = shopContent!.Class;
                 user.TransferEnable = shopContent!.Bandwidth * 1024 * 1024 * 1024L;
