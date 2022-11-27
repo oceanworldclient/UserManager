@@ -15,11 +15,13 @@
                       Color="blue darken-3"
                       Dark>
                 <MTextField @bind-Value="PanelState.SearchString"
+                            TValue="string"
                             Clearable
                             Flat
                             SoloInverted
                             HideDetails="true"
                             PrependInnerIcon="mdi-magnify"
+                            OnInput="@((item) => PanelState.SearchString = item)"
                             Label="Search"/>
                 <MSpacer/>
                 <MSelect @bind-Value="PanelState.QueryType"
@@ -122,7 +124,7 @@
     private BuyShopDialog? _buyShopDialog;
 
     private ModifyRefByDialog? _modifyRefByDialog;
-    
+
 
     private static IList<SelectItem> Keys => new List<SelectItem>()
     {
@@ -134,6 +136,7 @@
     private void ModifyPassword(UserDto userDto)
     {
         _passwordDialog?.Show(userDto, SnackInfo);
+        StateHasChanged();
     }
 
     private void ModifyRefBy(UserDto userDto)
@@ -163,7 +166,7 @@
         _snackbar?.Show(message);
         if (refresh)
         {
-            PanelState.Users = await ManageClient.FindUser(new QueryUserDto() { Email = userDto.Email, Type = QueryUserDto.QueryType.Email, Website = userDto.Website});
+            PanelState.Users = await ManageClient.FindUser(new QueryUserDto() { Email = userDto.Email, Type = QueryUserDto.QueryType.Email, Website = userDto.Website });
             StateHasChanged();
         }
     }
