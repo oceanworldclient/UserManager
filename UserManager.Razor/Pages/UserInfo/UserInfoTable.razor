@@ -67,6 +67,10 @@
         {
             Notify.NoticeWithIcon("Warn", "没有查询到记录", NotificationType.Warning);
         }
+        else
+        {
+            Notify.NoticeWithIcon("Info", "查询成功", NotificationType.Success, 4);
+        }
         _isLoading = false;
         StateHasChanged();
     }
