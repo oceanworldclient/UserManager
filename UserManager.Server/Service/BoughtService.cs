@@ -80,7 +80,7 @@ public class BoughtService : BaseService<Bought, BoughtDto>
             if (user == null) return new BaseResult() { Message = "用户不存在" };
             if (user.Money < shop.Price) return new BaseResult() { Message = "余额不足" };
             var shopContent = JsonSerializer.Deserialize<ShopContent>(shop.Content);
-            if (user.Class != 0 && user.Class != shopContent!.Class)
+            if (user.Class > 0 && user.Class != shopContent!.Class)
                 return new BaseResult() { Message = "用户当前套餐等级与购买套餐等级不一致" };
 
             var before = Mapper.Map<UserDto>(user);
