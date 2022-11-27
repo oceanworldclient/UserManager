@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+// using Microsoft.OpenApi.Models;
 using UserManager.Server.EntityFramework;
 using UserManager.Server.EventHub.EventHandler;
 using UserManager.Server.Service;
@@ -77,47 +77,47 @@ public static class PanelServiceCollectionExtensions
                 };
             });
     }
-
-    public static void ConfigureSwagger(this IServiceCollection services)
-    {
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Title = "客服Api",
-                Version = "v1",
-                Description = "客服系统api",
-                Contact = new OpenApiContact
-                {
-                    Name = "客服系统"
-                },
-            });
-            c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                Name = "Authorization",
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "Bearer",
-                BearerFormat = "JWT",
-                In = ParameterLocation.Header,
-                Description = "JWT Authorization header using the Bearer scheme."
-            });
-            
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    Array.Empty<string>()
-                }
-            });
-        });
-    }
+    
+    // public static void ConfigureSwagger(this IServiceCollection services)
+    // {
+    //     services.AddSwaggerGen(c =>
+    //     {
+    //         c.SwaggerDoc("v1", new OpenApiInfo
+    //         {
+    //             Title = "客服Api",
+    //             Version = "v1",
+    //             Description = "客服系统api",
+    //             Contact = new OpenApiContact
+    //             {
+    //                 Name = "客服系统"
+    //             },
+    //         });
+    //         c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+    //         c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    //         {
+    //             Name = "Authorization",
+    //             Type = SecuritySchemeType.ApiKey,
+    //             Scheme = "Bearer",
+    //             BearerFormat = "JWT",
+    //             In = ParameterLocation.Header,
+    //             Description = "JWT Authorization header using the Bearer scheme."
+    //         });
+    //         
+    //         c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    //         {
+    //             {
+    //                 new OpenApiSecurityScheme
+    //                 {
+    //                     Reference = new OpenApiReference
+    //                     {
+    //                         Type = ReferenceType.SecurityScheme,
+    //                         Id = "Bearer"
+    //                     }
+    //                 },
+    //                 Array.Empty<string>()
+    //             }
+    //         });
+    //     });
+    // }
     
 }

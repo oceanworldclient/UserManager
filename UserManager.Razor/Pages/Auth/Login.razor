@@ -1,0 +1,78 @@
+﻿@page "/Login"
+@using Blazored.LocalStorage
+@using UserManager.Razor.State
+@using UserManager.Shared.Utils
+@layout EmptyLayout
+@inject MessageService MessageService 
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorage 
+
+<Card>
+    <AntDesign.Title Style="text-align: center;">
+        <h3>登陆</h3>
+    </AntDesign.Title>
+    <AntDesign.Form Loading="_loading" Model="@_loginModel"
+          LabelColSpan="4"
+          WrapperColSpan="16"
+          OnFinish="OnFinish"
+          Style="margin-top: 4rem;padding-bottom: 4rem;">
+        <FormItem Label="Email">
+            <Input @bind-Value="@context.Email"/>
+        </FormItem>
+        <FormItem Label="Password">
+            <InputPassword @bind-Value="@context.Password"/>
+        </FormItem>
+        <FormItem WrapperColOffset="4" WrapperColSpan="16">
+            <Checkbox @bind-Value="context.RememberMe">Remember me</Checkbox>
+        </FormItem>
+        <FormItem WrapperColOffset="4" WrapperColSpan="16">
+            <Button Type="@ButtonType.Primary" HtmlType="submit">
+                Submit
+            </Button>
+        </FormItem>
+        <div style="width: 100%; text-align: center;margin-top: 3rem;">
+            <a href="/Register">没有账户，前去注册</a>
+        </div>
+    </AntDesign.Form>
+</Card>
+
+
+@code {
+
+    private bool _loading;
+
+    private readonly LoginModel _loginModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        var pass = await LocalStorage.GetItemAsync<string>(AuthState.RememberPassword);
+        var email = await LocalStorage.GetItemAsync<string>(AuthState.RememberEmail);
+        if (!string.IsNullOrWhiteSpace(pass) && !string.IsNullOrWhiteSpace(email))
+        {
+            _loginModel.Email = email.Decrypt();
+            _loginModel.Password = pass.Decrypt();
+        }
+    }
+
+    private async void OnFinish()
+    {
+        _loading = true;
+        var model = new LoginModel()
+        {
+            Password = _loginModel.Password.Encrypt(),
+            Email = _loginModel.Email.Encrypt()
+        };
+        var result = await AuthService.Login(model);
+        _loading = false;
+        StateHasChanged();
+        if (result.Successful)
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+        _ = MessageService.Error(result.Error);
+    }
+
+}

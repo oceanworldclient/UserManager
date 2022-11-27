@@ -1,4 +1,6 @@
-﻿namespace UserManager.Shared;
+﻿using UserManager.Shared.Enum;
+
+namespace UserManager.Shared;
 
 public class BaseDto
 {

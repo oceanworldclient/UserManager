@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using UserManager.Server.EventHub;
 using UserManager.Server.EventHub.Event;
 using UserManager.Server.Utils;
+using UserManager.Shared.Enum;
 using UserManager.Shared.Request;
 using UserManager.Shared.Response;
 
@@ -124,7 +125,7 @@ public class UserService : BaseService<User, UserDto>
                 RefBy = refBy[0].Id
             };
             dbSet.Attach(user);
-            DbContext!.Entry(user).Property(u => u.Pass).IsModified = true;
+            DbContext!.Entry(user).Property(u => u.RefBy).IsModified = true;
             if (await DbContext!.SaveChangesAsync() != 1) return new BaseResult() { Message = "异常，修改失败" };
             EventCenter.Instance.Publish(new ModifyPasswordEvent()
             {

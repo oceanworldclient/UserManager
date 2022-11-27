@@ -1,0 +1,118 @@
+@inject ManageClient ManageClient
+@inject Notify Notify
+
+<Modal Maximizable="@true" ConfirmLoading="_loading" Title="用户购买信息" Visible="_visible" OnCancel="() => _visible = false" OnOk="OnSave" Footer="ModalFooter.DefaultCancelFooter">
+    <Card Title="@_user.Email">
+        <ChildContent>
+            <AntDesign.Table
+                Loading="_loadingData"
+                TItem="BoughtDto"
+                DataSource="_boughtList">
+                <PropertyColumn TItem="BoughtDto" TProp="string" Title="套餐名字" Property="it => it.ShopName"/>
+                <PropertyColumn TItem="BoughtDto" TProp="decimal" Title="价钱" Property="it => it.Price"/>
+                <PropertyColumn TItem="BoughtDto" TProp="string" Title="自动续费时间" Property="it => it.RenewStr"/>
+                <ActionColumn Title="确定要删除吗?" Fixed="right">
+                    <Popconfirm Title="确定要删除吗"
+                                OnConfirm="() => Delete(context)"
+                                OkText="Yes"
+                                CancelText="No">
+                        <a style="color: red;">删除记录</a>
+                    </Popconfirm>
+                    @if (context.Renew > 0)
+                    {
+                        <Popconfirm Title="确定要关闭续费吗"
+                                    OnConfirm="() => CloseRenew(context)"
+                                    OkText="Yes"
+                                    CancelText="No">
+                            <a style="color: #0c63e4;">关闭续费</a>
+                        </Popconfirm>
+                    }
+                </ActionColumn>
+            </AntDesign.Table>
+        </ChildContent>
+    </Card>
+</Modal>
+
+
+@code {
+
+    private UserDto _user = new();
+
+    private IList<BoughtDto> _boughtList = new List<BoughtDto>();
+
+    private bool _loading;
+
+    private bool _loadingData;
+
+    private bool _visible;
+
+    private Action? _callback;
+
+    private async void OnSave()
+    {
+        _visible = false;
+    }
+
+    private async void Refresh()
+    {
+        _loadingData = true;
+        _boughtList = await ManageClient.QueryBoughtByUserId(new QueryBoughtDto()
+        {
+            UserId = _user.Id,
+            Website = _user.Website
+        });
+        _loadingData = false;
+        StateHasChanged();
+    }
+
+    private async void Delete(BoughtDto boughtDto)
+    {
+        var request = new DeleteBoughtDto()
+        {
+            Website = _user.Website,
+            Id = boughtDto.Id,
+            UserEmail = _user.Email,
+            UserId = _user.Id
+        };
+        _loading = true;
+        var res = await ManageClient.DeleteBought(request);
+        if (!res)
+            Notify.NoticeWithIcon("Error", "删除记录失败", NotificationType.Error);
+        else
+            Notify.NoticeWithIcon("Info", "删除记录成功", NotificationType.Success);
+        _loading = false;
+        StateHasChanged();
+        Refresh();
+    }
+
+    private async void CloseRenew(BoughtDto boughtDto)
+    {
+        var request = new CloseRenewDto()
+        {
+            Website = _user.Website,
+            Id = boughtDto.Id,
+            UserEmail = _user.Email,
+            UserId = _user.Id
+        };
+        _loading = true;
+        var res = await ManageClient.CloseRenew(request);
+        if (!res)
+            Notify.NoticeWithIcon("Error", "关闭自动续费失败", NotificationType.Error);
+        else
+            Notify.NoticeWithIcon("Info", "关闭续费成功", NotificationType.Success);
+        _loading = false;
+        StateHasChanged();
+        Refresh();
+    }
+
+    public void Show(UserDto userDto, Action? action)
+    {
+        _user = userDto;
+        _callback = action;
+        _visible = true;
+        _loadingData = true;
+        StateHasChanged();
+        Refresh();
+    }
+
+}

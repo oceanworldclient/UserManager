@@ -1,0 +1,12 @@
+@page "/UserInfo/{WebId:int}"
+
+<CascadingValue TValue="int" Value="WebId">
+    <UserInfoTable/>
+</CascadingValue>
+
+@code {
+    
+    [Parameter]
+    public int WebId { get; set; }
+    
+}

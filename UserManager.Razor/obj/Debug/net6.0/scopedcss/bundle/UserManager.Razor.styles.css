@@ -1,0 +1,43 @@
+/* _content/UserManager.Razor/Pages/UserInfo/UserInfoCard.razor.rz.scp.css */
+
+
+.card-body[b-2rkxr4xixu] {
+    display: flex;
+    flex-direction: column;
+    width: 20rem;
+}
+
+.ant-card-head[b-2rkxr4xixu] {
+    background: #40a9ff;
+}
+
+.user-info-item[b-2rkxr4xixu] {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+/* _content/UserManager.Razor/Pages/UserInfo/UserInfoTable.razor.rz.scp.css */
+
+
+.search-header[b-najhs5ldfb] {
+    width: 100%;
+    height: 64px;
+    display: flex;
+    padding-left: 16px;
+    padding-right: 16px;
+    background-color: #40a9ff;
+}
+
+.search-item[b-najhs5ldfb] {
+    display: flex;
+    margin-right: 1rem;
+    align-items: center;
+}
+
+.user-info-table[b-najhs5ldfb] {
+    display: flex;
+    margin-left: 16px;
+    margin-top: 32px;
+}

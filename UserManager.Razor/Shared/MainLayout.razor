@@ -1,0 +1,80 @@
+@inherits LayoutComponentBase
+
+@inject NavigationManager NavigationManager 
+@inject IAuthService AuthService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<Layout Style="height: 100vh;">
+    <Sider Style="overflow: auto;height: 100vh;position: fixed;left: 0;">
+        <div class="logo" />
+        <Menu Theme="MenuTheme.Dark" Mode="MenuMode.Inline" OnMenuItemClicked="item => Nav(item.Key)">
+            <MenuItem Key="0">
+                <Icon Type="user" Theme="outline" />
+                <span class="nav-text">世界旅行</span>
+            </MenuItem>
+            <MenuItem Key="1">
+                <Icon Type="video-camera" Theme="outline"/>
+                <span class="nav-text">海洋</span>
+            </MenuItem>
+            <MenuItem Key="2">
+                <Icon Type="upload" Theme="outline"/>
+                <span class="nav-text">斑马</span>
+            </MenuItem>
+            <MenuItem Key="Logout" OnClick="Logout">
+                <Icon Type="bar-chart" Theme="outline"/>
+                <span class="nav-text">退出登录</span>
+            </MenuItem>
+        </Menu>
+    </Sider>
+    <Layout Class="site-layout" Style=" margin-left: 200px">
+        @* <Header Class="site-layout-background" Style="padding: 0" ></Header> *@
+        <Content Style="margin: 24px 16px 0; overflow: initial; ">
+            <div class="site-layout-background" style="padding: 24px; text-align:center; ">
+                @Body
+            </div>
+        </Content>
+        <Footer Style=" text-align: center;">Ant Design ©2018 Created by Ant UED</Footer>
+    </Layout>
+</Layout>
+
+@code{
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if (NavigationManager.Uri.Contains("Login") || NavigationManager.Uri.Contains("Register")) return;
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity is not {IsAuthenticated: true })
+        {
+            NavigationManager.NavigateTo(("/login"));
+        }
+    }
+    
+    private void Nav(string route)
+    {
+        if (route == "Logout")
+        {
+            Logout();
+            return;
+        }
+        NavigationManager.NavigateTo("/UserInfo/" + route);
+    }
+    
+    private void Logout()
+    {
+        AuthService.Logout();
+        NavigationManager.NavigateTo("/Login");
+    }
+    
+}
+
+<style>
+    #components-layout-demo-fixed-sider .logo {
+        height: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 16px;
+    }
+    .site-layout .site-layout-background {
+        background: #fff;
+    }
+</style>

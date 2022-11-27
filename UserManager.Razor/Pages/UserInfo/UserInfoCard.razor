@@ -1,0 +1,97 @@
+@inject ManageClient ManageClient
+
+<Card>
+    <TitleTemplate>
+        <Text>@User.Email</Text>
+    </TitleTemplate>
+    <ChildContent>
+        <div class="card-body">
+            @foreach (var key in UserDto.Keys)
+            {
+                <div class="user-info-item">
+                    <span>@key</span>
+                    <span style="color: #0d6efd">@User.GetValue(key)</span>
+                </div>
+            }
+
+        </div>
+    </ChildContent>
+    <ActionTemplate>
+        <CardAction>
+            <a onclick="@Edit">编辑</a>
+        </CardAction>
+        <CardAction>
+            <a onclick="@Buy">套餐</a>
+        </CardAction>
+        <CardAction>
+            <a onclick="@Bought">购买记录</a>
+        </CardAction>
+        <CardAction>
+            <a onclick="@RefBy">更改邀请人</a>
+        </CardAction>
+        <CardAction>
+            <a onclick="@Password">更改密码</a>
+        </CardAction>
+    </ActionTemplate>
+</Card>
+
+<BuyShopModal @ref="_buyShopModal"/>
+<ModifyPasswordModal @ref="_modifyPasswordModal"/>
+<ModifyRefByModal @ref="_modifyRefByModal"/>
+<ModifyUserInfoModal @ref="_modifyUserInfoModal"/>
+<UserBoughtModal @ref="_userBoughtModal"/>
+
+@code {
+
+    [Parameter]
+    public UserDto User { get; set; } = new();
+
+    private BuyShopModal _buyShopModal;
+
+    private ModifyPasswordModal _modifyPasswordModal;
+
+    private ModifyRefByModal _modifyRefByModal;
+
+    private ModifyUserInfoModal _modifyUserInfoModal;
+
+    private UserBoughtModal _userBoughtModal;
+
+    private async void Refresh()
+    {
+        var res = await ManageClient.FindUser(new QueryUserDto()
+        {
+            Email = User.Email,
+            Type = QueryUserDto.QueryType.Email,
+            Website = User.Website
+        });
+        if (res.Any())
+            User = res[0];
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void Edit()
+    {
+        _modifyUserInfoModal.Show(User, Refresh);
+    }
+
+    private void Buy()
+    {
+        _buyShopModal.Show(User, Refresh);
+    }
+
+    private void RefBy()
+    {
+        _modifyRefByModal.Show(User, null);
+    }
+
+    private void Bought()
+    {
+        _userBoughtModal.Show(User, null);
+    }
+
+    private void Password()
+    {
+        _modifyPasswordModal.Show(User, null);
+    }
+
+}

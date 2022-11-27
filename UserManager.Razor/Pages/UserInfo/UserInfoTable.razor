@@ -1,0 +1,74 @@
+@using Microsoft.AspNetCore.Components
+@using UserManager.Razor.Client
+@using UserManager.Razor.State
+@inject StateManager StateManager
+@inject Notify Notify
+@inject ManageClient ManageClient
+
+<div class="search-header">
+    <div class="search-item">
+        <span>查询参数</span>
+        <AntDesign.Input @bind-Value="@PanelState.SearchString" TValue="string" Style="width:10rem;margin-left: 16px;"/>
+    </div>
+    <div class="search-item" style="margin-left: 4rem;">
+        <span>类型</span>
+        <EnumSelect @bind-Value="PanelState.QueryType" TEnum="QueryUserDto.QueryType" Style="width: 10rem;margin-left: 16px;"/>
+        <AntDesign.Button Style="margin-left: 1.5rem;" Type="@ButtonType.Primary" Shape="@ButtonShape.Circle" Icon="@IconType.Outline.Search" OnClick="Search" Loading="_isLoading"/>
+    </div>
+</div>
+<div class="user-info-table">
+    @foreach (var user in PanelState.Users)
+    {
+        <UserInfoCard User="@user"/>
+    }
+</div>
+
+
+@code {
+
+    [CascadingParameter] public int WebId { get; set; }
+    
+    private PanelState PanelState => StateManager.GetState(WebId);
+    
+    private bool _isLoading;
+    
+    private async void Search()
+    {
+        if (string.IsNullOrWhiteSpace(PanelState.SearchString))
+        {
+            Notify.NoticeWithIcon("Error", "查询参数不能为空", NotificationType.Error);
+        }
+        var request = new QueryUserDto()
+        {
+            Website = PanelState.Website,
+            Type = PanelState.QueryType,
+        };
+        switch (PanelState.QueryType)
+        {
+            case QueryUserDto.QueryType.Id:
+                request.Id = int.Parse(PanelState.SearchString);
+                break;
+            case QueryUserDto.QueryType.Email:
+                request.Email = PanelState.SearchString;
+                break;
+            case QueryUserDto.QueryType.Contact:
+                request.Contact = PanelState.SearchString;
+                break;
+            case QueryUserDto.QueryType.Username:
+                request.UserName = PanelState.SearchString;
+                break;
+            default:
+                _isLoading = false;
+                StateHasChanged();
+                return;
+        }
+        PanelState.Users = await ManageClient.FindUser(request);
+        if (!PanelState.Users.Any())
+        {
+            Notify.NoticeWithIcon("Warn", "没有查询到记录", NotificationType.Warning);
+        }
+        _isLoading = false;
+        StateHasChanged();
+    }
+
+}

@@ -1,5 +1,6 @@
 using UserManager.Server.Utils;
 using UserManager.Shared;
+using UserManager.Shared.Enum;
 
 namespace UserManager.Server.EventHub;
 

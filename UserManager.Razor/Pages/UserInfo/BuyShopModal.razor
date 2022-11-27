@@ -1,0 +1,163 @@
+@inject ManageClient ManageClient
+@inject Notify Notify
+
+<Modal Maximizable="@true" ConfirmLoading="_loading" Title="套餐操作" Visible="_visible" OnCancel="() => _visible = false" OnOk="OnSave" Footer="ModalFooter.DefaultCancelFooter">
+    <Card Title="@_user.Email">
+        <ChildContent>
+            <AntDesign.Select TItem="ShopDto"
+                              TItemValue="string"
+                              LabelName="@nameof(ShopDto.Name)"
+                              ValueName="@nameof(ShopDto.Name)"
+                              DataSource="_shops"
+                              Loading="_loadingData"
+                              OnSelectedItemChanged="@((item) => _selectShop = item)"/>
+        </ChildContent>
+        <ActionTemplate>
+            <CardAction>
+                <a onclick="@Buy">购买</a>
+            </CardAction>
+            <CardAction>
+                <a onclick="@Upgrade">变更</a>
+            </CardAction>
+            <CardAction>
+                <a onclick="@QueryGap">查询差价</a>
+            </CardAction>
+            <CardAction>
+                <a onclick="@RestoreBought">处理刚买套餐无流量</a>
+            </CardAction>
+        </ActionTemplate>
+    </Card>
+</Modal>
+
+
+@code {
+
+    private UserDto _user = new();
+
+    private IList<ShopDto> _shops = new List<ShopDto>();
+
+    private bool _loading;
+
+    private bool _loadingData;
+
+    private bool _visible;
+
+    private ShopDto? _selectShop;
+
+    private Action? _callback;
+
+    private void OnSave()
+    {
+        _visible = false;
+    }
+
+    private async void Refresh()
+    {
+        _loadingData = true;
+        _shops = await ManageClient.QueryShop(new QueryShopDto()
+        {
+            Website = _user.Website
+        });
+        _loadingData = false;
+        StateHasChanged();
+    }
+
+    private async void Buy()
+    {
+        if (_selectShop == null)
+        {
+            Notify.NoticeWithIcon("Warn", "所选套餐为空", NotificationType.Warning);
+            return;
+        }
+
+        _loading = true;
+        var res = await ManageClient.BuyShop(new BuyShopDto() { ShopId = _selectShop!.Id, UserId = _user.Id, UserEmail = _user.Email, Website = _user.Website });
+        if (res.IsSuccess)
+        {
+            _loading = false;
+            Notify.NoticeWithIcon("Info", "购买成功", NotificationType.Success);
+            _visible = false;
+            _callback?.Invoke();
+            StateHasChanged();
+            return;
+        }
+        _loading = false;
+        Notify.NoticeWithIcon("Error", res.Message ?? "购买失败", NotificationType.Error);
+        StateHasChanged();
+    }
+
+    private async void Upgrade()
+    {
+        if (_selectShop == null)
+        {
+            Notify.NoticeWithIcon("Warn", "所选套餐为空", NotificationType.Warning);
+            return;
+        }
+        _loading = true;
+        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectShop!.Id, UserId = _user.Id, UserEmail = _user.Email, Website = _user.Website });
+        if (res.IsSuccess)
+        {
+            _loading = false;
+            Notify.NoticeWithIcon("Info", "变更成功", NotificationType.Success);
+            _visible = false;
+            _callback?.Invoke();
+            StateHasChanged();
+            return;
+        }
+        _loading = false;
+        Notify.NoticeWithIcon("Error", res.Message ?? "变更失败", NotificationType.Error);
+        StateHasChanged();
+    }
+
+    private async void QueryGap()
+    {
+        if (_selectShop == null)
+        {
+            Notify.NoticeWithIcon("Warn", "所选套餐为空", NotificationType.Warning);
+            return;
+        }
+        _loading = true;
+        var res = await ManageClient.Upgrade(new BuyShopDto() { ShopId = _selectShop!.Id, UserId = _user.Id, UserEmail = _user.Email, Website = _user.Website, IsQueryGap = true });
+        if (res.IsSuccess)
+        {
+            _loading = false;
+            Notify.NoticeWithIcon("查询成功", res.Message!, NotificationType.Success);
+            // _visible = false;
+            _callback?.Invoke();
+            StateHasChanged();
+            return;
+        }
+        _loading = false;
+        Notify.NoticeWithIcon("Error", res.Message ?? "查询失败", NotificationType.Error);
+        StateHasChanged();
+    }
+
+    private async void RestoreBought()
+    {
+        _loading = true;
+        var res = await ManageClient.RestoreBought(new RestoreBoughtDto() { UserEmail = _user!.Email, UserId = _user!.Id, Website = _user.Website });
+        if (res.IsSuccess)
+        {
+            _loading = false;
+            Notify.NoticeWithIcon("Info", "恢复成功", NotificationType.Success);
+            _visible = false;
+            _callback?.Invoke();
+            StateHasChanged();
+            return;
+        }
+        _loading = false;
+        Notify.NoticeWithIcon("Error", res.Message ?? "恢复失败", NotificationType.Error);
+        StateHasChanged();
+    }
+
+    public void Show(UserDto userDto, Action? action)
+    {
+        _user = userDto;
+        _callback = action;
+        _visible = true;
+        _loadingData = true;
+        StateHasChanged();
+        Refresh();
+    }
+
+}

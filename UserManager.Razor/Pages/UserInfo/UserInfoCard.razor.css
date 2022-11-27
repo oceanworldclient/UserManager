@@ -1,0 +1,19 @@
+
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    width: 20rem;
+}
+
+.ant-card-head {
+    background: #40a9ff;
+}
+
+.user-info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}

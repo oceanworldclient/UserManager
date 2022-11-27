@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using UserManager.Shared;
+using UserManager.Shared.Enum;
 
 namespace UserManager.Server.Service;
 

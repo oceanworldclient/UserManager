@@ -1,4 +1,4 @@
-﻿namespace UserManager.Shared;
+﻿namespace UserManager.Shared.Enum;
 
 public enum Website
 {

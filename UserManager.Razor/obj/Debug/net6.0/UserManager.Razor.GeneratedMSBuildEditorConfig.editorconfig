@@ -1,0 +1,77 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows,browser
+build_property.RootNamespace = UserManager.Razor
+build_property.RootNamespace = UserManager.Razor
+build_property.ProjectDir = D:\ProjectWorkSpace\UserManager\UserManager.Razor\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = D:\ProjectWorkSpace\UserManager\UserManager.Razor
+build_property._RazorSourceGeneratorDebug = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/Pages/Auth/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXV0aFxMb2dpbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/Pages/Auth/Register.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXV0aFxSZWdpc3Rlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/Pages/UserInfo/BuyShopModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlckluZm9cQnV5U2hvcE1vZGFsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/Pages/UserInfo/ModifyPasswordModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlckluZm9cTW9kaWZ5UGFzc3dvcmRNb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/Pages/UserInfo/ModifyRefByModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlckluZm9cTW9kaWZ5UmVmQnlNb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/Pages/UserInfo/ModifyUserInfoModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlckluZm9cTW9kaWZ5VXNlckluZm9Nb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/Pages/UserInfo/UserBoughtModal.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlckluZm9cVXNlckJvdWdodE1vZGFsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/Pages/UserInfo/UserInfo.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlckluZm9cVXNlckluZm8ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/Shared/EmptyLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEVtcHR5TGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/Pages/UserInfo/UserInfoCard.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlckluZm9cVXNlckluZm9DYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-2rkxr4xixu
+
+[D:/ProjectWorkSpace/UserManager/UserManager.Razor/Pages/UserInfo/UserInfoTable.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlckluZm9cVXNlckluZm9UYWJsZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-najhs5ldfb

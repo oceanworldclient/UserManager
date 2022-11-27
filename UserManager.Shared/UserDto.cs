@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json.Serialization;
 using System.Xml;
 using UserManager.Shared.Converter;
+using UserManager.Shared.Enum;
 using UserManager.Shared.Utils;
 
 namespace UserManager.Shared;

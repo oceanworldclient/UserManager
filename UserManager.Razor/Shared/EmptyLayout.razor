@@ -1,0 +1,38 @@
+﻿@inherits LayoutComponentBase
+
+<Layout Class="site-layout">
+    <Content>
+        <div class="card-container">
+            @Body
+        </div>
+    </Content>
+    <Footer Class="footer" Style="text-align:center ">Miaomiao Technology ©2016 Created by Zero</Footer>
+</Layout>
+
+@code {
+
+}
+
+<style>
+    .site-layout .site-layout-background {
+        background: #f0f2f5;
+        height: 100vh;
+    }
+    
+    .card-container {
+        width: 40rem;
+        margin-top: 10rem;;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    body {
+        background: #f0f2f5;
+    }
+    
+    .footer{
+        width: 100%;
+        position: absolute;
+        bottom: 0
+    }
+</style>
