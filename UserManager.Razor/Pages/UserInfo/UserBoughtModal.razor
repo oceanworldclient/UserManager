@@ -10,6 +10,7 @@
                 DataSource="_boughtList">
                 <PropertyColumn TItem="BoughtDto" TProp="string" Title="套餐名字" Property="it => it.ShopName"/>
                 <PropertyColumn TItem="BoughtDto" TProp="decimal" Title="价钱" Property="it => it.Price"/>
+                <PropertyColumn TItem="BoughtDto" TProp="string" Title="购买时间" Property="it => it.DatetimeString"/>
                 <PropertyColumn TItem="BoughtDto" TProp="string" Title="自动续费时间" Property="it => it.RenewStr"/>
                 <ActionColumn Title="确定要删除吗?" Fixed="right">
                     <Popconfirm Title="确定要删除吗"
