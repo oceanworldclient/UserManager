@@ -12,7 +12,7 @@
                 <PropertyColumn TItem="BoughtDto" TProp="decimal" Title="价钱" Property="it => it.Price"/>
                 <PropertyColumn TItem="BoughtDto" TProp="string" Title="购买时间" Property="it => it.DatetimeString"/>
                 <PropertyColumn TItem="BoughtDto" TProp="string" Title="自动续费时间" Property="it => it.RenewStr"/>
-                <ActionColumn Title="确定要删除吗?" Fixed="right">
+                <ActionColumn Title="Action" Fixed="right">
                     <Popconfirm Title="确定要删除吗"
                                 OnConfirm="() => Delete(context)"
                                 OkText="Yes"
