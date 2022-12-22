@@ -2,7 +2,7 @@
 @inject Notify Notify
 
 <Modal Maximizable="@true" ConfirmLoading="_loading" Title="编辑用户信息" Visible="_visible" OnCancel="() => _visible = false" OnOk="OnSave">
-    <Form TModel="UserDto" Model="_user" LabelColSpan="8" >
+    <Form TModel="UserDto" Model="_user" LabelColSpan="8">
         <FormItem Label="用户等级">
             <AntDesign.Input TValue="int" @bind-Value="@_user.Class"/>
         </FormItem>
@@ -14,6 +14,9 @@
         </FormItem>
         <FormItem Label="用户分组">
             <AntDesign.Input TValue="int" @bind-Value="@_user.NodeGroup"/>
+        </FormItem>
+        <FormItem Label="余额">
+            <AntDesign.Input TValue="int" @bind-Value="@_user.Money"/>
         </FormItem>
         <FormItem Label="用户分组到期时间">
             <AntDesign.Input TValue="string" @bind-Value="@_user.GroupExpireStr"/>
